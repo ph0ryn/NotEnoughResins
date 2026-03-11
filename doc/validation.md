@@ -61,6 +61,22 @@ Observed outcomes:
 - No requirement or design deltas were needed before downstream implementation
   started.
 
+### 2026-03-12 - Task 02 configuration and preferences verification
+
+- Command:
+  `xcodebuild test -scheme NotEnoughResins -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY=-`
+- Result: passed
+
+Executed coverage:
+
+- Unit tests covered stored-cookie restore, empty-cookie rejection, successful
+  save normalization, and load failure fallback for `PreferencesStore`.
+- UI tests exercised opening Preferences, saving a cookie, and relaunching the
+  app with an isolated Keychain service suffix to confirm the saved cookie was
+  still available after restart.
+- Code inspection confirmed the task-02 implementation writes the cookie only
+  through `KeychainStore` and does not persist it in `UserDefaults`.
+
 ## Requirement Coverage
 
 - FR-1, FR-2, FR-10: preferences and persistence checks.
@@ -71,7 +87,7 @@ Observed outcomes:
 
 ## Residual Gaps
 
-- Preferences, persistence, polling, resin tracking, and UI checks are still
-  pending execution in Tasks 02 through 06.
+- Polling, resin tracking, and final menu bar UI checks are still pending
+  execution in Tasks 03 through 06.
 - No CI status was checked because the repository does not yet expose remote CI
   to this workflow.
