@@ -10,15 +10,23 @@ import SwiftUI
 @main
 struct NotEnoughResinsApp: App {
     @StateObject private var preferencesStore: PreferencesStore
+    @StateObject private var appState: AppState
 
     init() {
-        _preferencesStore = StateObject(wrappedValue: PreferencesStore.live())
+        let preferencesStore = PreferencesStore.live()
+        _preferencesStore = StateObject(wrappedValue: preferencesStore)
+        _appState = StateObject(
+            wrappedValue: AppState(
+                preferencesStore: preferencesStore,
+                refreshCoordinator: RefreshCoordinator.live()
+            )
+        )
     }
 
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environmentObject(preferencesStore)
+                .environmentObject(appState)
         }
 
         Settings {

@@ -1,0 +1,80 @@
+import Combine
+import Foundation
+
+@MainActor
+final class AppState: ObservableObject {
+    @Published private(set) var configurationState: PreferencesStore.ConfigurationState
+    @Published private(set) var refreshPhase: RefreshCoordinator.Phase
+    @Published private(set) var resolvedAccount: ResolvedAccount?
+    @Published private(set) var latestSnapshot: DailyNoteSnapshot?
+    @Published private(set) var lastSuccessfulFetchAt: Date?
+
+    private let preferencesStore: PreferencesStore
+    private let refreshCoordinator: RefreshCoordinator
+    private let refreshEnabled: Bool
+    private var cancellables: Set<AnyCancellable> = []
+
+    init(
+        preferencesStore: PreferencesStore,
+        refreshCoordinator: RefreshCoordinator,
+        refreshEnabled: Bool = ProcessInfo.processInfo.environment["NOT_ENOUGH_RESINS_DISABLE_REFRESH"] != "1"
+    ) {
+        self.preferencesStore = preferencesStore
+        self.refreshCoordinator = refreshCoordinator
+        self.refreshEnabled = refreshEnabled
+        configurationState = preferencesStore.configurationState
+        refreshPhase = refreshCoordinator.phase
+        resolvedAccount = refreshCoordinator.resolvedAccount
+        latestSnapshot = refreshCoordinator.latestSnapshot
+        lastSuccessfulFetchAt = refreshCoordinator.lastSuccessfulFetchAt
+        bind()
+        restartRefreshIfNeeded()
+    }
+
+    private func bind() {
+        preferencesStore.$storedCookie
+            .removeDuplicates()
+            .sink { [weak self] _ in
+                guard let self else {
+                    return
+                }
+
+                configurationState = preferencesStore.configurationState
+                restartRefreshIfNeeded()
+            }
+            .store(in: &cancellables)
+
+        refreshCoordinator.$phase
+            .sink { [weak self] phase in
+                self?.refreshPhase = phase
+            }
+            .store(in: &cancellables)
+
+        refreshCoordinator.$resolvedAccount
+            .sink { [weak self] account in
+                self?.resolvedAccount = account
+            }
+            .store(in: &cancellables)
+
+        refreshCoordinator.$latestSnapshot
+            .sink { [weak self] snapshot in
+                self?.latestSnapshot = snapshot
+            }
+            .store(in: &cancellables)
+
+        refreshCoordinator.$lastSuccessfulFetchAt
+            .sink { [weak self] date in
+                self?.lastSuccessfulFetchAt = date
+            }
+            .store(in: &cancellables)
+    }
+
+    private func restartRefreshIfNeeded() {
+        guard refreshEnabled else {
+            refreshPhase = .idle
+            return
+        }
+
+        refreshCoordinator.start(cookie: preferencesStore.cookie)
+    }
+}
