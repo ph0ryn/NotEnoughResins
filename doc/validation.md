@@ -1,9 +1,9 @@
-# NotEnoughResins Validation Plan
+# NotEnoughResins Validation
 
 ## Document Status
 
 - Status: Partially Executed
-- Last updated: 2026-03-11
+- Last updated: 2026-03-12
 - Related requirements: `doc/spec.md`
 - Related design: `doc/design.md`
 
@@ -29,6 +29,38 @@
 - Capture representative failure responses and `retcode` values with secrets
   redacted.
 
+## Executed Checks
+
+### 2026-03-12 - Task 01 live API investigation
+
+- Input source: `HOYOLAB_COOKIE` from the local environment
+- Method: read-only requests against the approved HoYoLAB endpoints with
+  redacted evidence recorded in `doc/task/task_01_evidence.md`
+- Result: passed
+
+Observed outcomes:
+
+- `account_id_v2` was extractable from the cookie and usable as the
+  `getGameRecordCard` `uid` query parameter.
+- The selected `game_id == 2` entry still mapped `region -> server` and
+  `game_role_id -> role_id`.
+- Both endpoints returned HTTP `200` for success, auth failure, and
+  parameter failure, so app logic must classify failures from `retcode` and
+  `message`.
+- The observed auth failure signature remained `retcode = 10001` and
+  `message = "Please login"`.
+- The observed generic failure signatures remained `retcode = -1` with
+  parameter-specific messages including `Invalid uid` and
+  `param role_id error: value must be greater than 0`.
+
+### 2026-03-12 - Documentation consistency check
+
+- Compared the live investigation results with `doc/spec.md` and
+  `doc/design.md`
+- Result: passed
+- No requirement or design deltas were needed before downstream implementation
+  started.
+
 ## Requirement Coverage
 
 - FR-1, FR-2, FR-10: preferences and persistence checks.
@@ -36,3 +68,10 @@
   checks.
 - FR-6, FR-7, FR-8, FR-9: menu bar and main panel checks.
 - FR-12: resin tracking unit tests and manual boundary confirmation.
+
+## Residual Gaps
+
+- Preferences, persistence, polling, resin tracking, and UI checks are still
+  pending execution in Tasks 02 through 06.
+- No CI status was checked because the repository does not yet expose remote CI
+  to this workflow.
