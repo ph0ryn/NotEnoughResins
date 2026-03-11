@@ -1,1 +1,12 @@
 # NotEnoughResins Change Log
+
+## 2026-03-12
+
+### Task 01 - Confirm HoYoLAB contract and test fixtures
+
+- Updated `doc/task/task_01_evidence.md` with the latest live verification
+  date.
+- Recorded executed Task 01 validation evidence in `doc/validation.md`.
+- Confirmed that the current live HoYoLAB contract still matches
+  `doc/spec.md` and `doc/design.md`, so no upstream artifact deltas were
+  required before implementation.
