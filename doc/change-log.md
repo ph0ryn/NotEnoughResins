@@ -10,3 +10,13 @@
 - Confirmed that the current live HoYoLAB contract still matches
   `doc/spec.md` and `doc/design.md`, so no upstream artifact deltas were
   required before implementation.
+
+### Task 02 - Add secure configuration and preferences editing
+
+- Added a Keychain-backed `PreferencesStore` and `KeychainStore` wrapper for
+  secure HoYoLAB cookie persistence.
+- Added a dedicated Preferences UI plus launch-time configuration status
+  wiring in the app shell.
+- Added unit and UI coverage for empty-cookie rejection, save/restore
+  behavior, and relaunch persistence, then recorded the executed verification
+  in `doc/validation.md`.
