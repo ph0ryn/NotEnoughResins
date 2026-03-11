@@ -77,6 +77,26 @@ Executed coverage:
 - Code inspection confirmed the task-02 implementation writes the cookie only
   through `KeychainStore` and does not persist it in `UserDefaults`.
 
+### 2026-03-12 - Task 03 discovery and refresh verification
+
+- Command:
+  `xcodebuild test -scheme NotEnoughResins -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY=-`
+- Result: passed
+
+Executed coverage:
+
+- `AccountResolverTests` covered `account_id_v2` extraction, request
+  construction, `game_id == 2` selection, auth failure, and generic request
+  failure classification.
+- `DailyNoteServiceTests` covered Daily Note request construction, snapshot
+  decoding, auth failure, and generic request failure classification.
+- `RefreshCoordinatorTests` covered startup discovery occurring once before the
+  initial Daily Note fetch, immediate first refresh, repeated Daily Note polling
+  without repeating the game record card request, and auth failure stopping the
+  polling loop.
+- The current app shell now reflects discovery, refresh, ready, auth-error, and
+  request-error phases from the shared state layer for local verification.
+
 ## Requirement Coverage
 
 - FR-1, FR-2, FR-10: preferences and persistence checks.
@@ -87,7 +107,7 @@ Executed coverage:
 
 ## Residual Gaps
 
-- Polling, resin tracking, and final menu bar UI checks are still pending
-  execution in Tasks 03 through 06.
+- Resin tracking, persistence across relaunch for snapshots, and final menu bar
+  UI checks are still pending execution in Tasks 04 through 06.
 - No CI status was checked because the repository does not yet expose remote CI
   to this workflow.

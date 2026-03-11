@@ -20,3 +20,15 @@
 - Added unit and UI coverage for empty-cookie rejection, save/restore
   behavior, and relaunch persistence, then recorded the executed verification
   in `doc/validation.md`.
+
+### Task 03 - Implement startup discovery and Daily Note refresh
+
+- Added `AccountResolver`, `DailyNoteService`, HoYoLAB models, and
+  `RefreshCoordinator` to resolve the configured account once and poll Daily
+  Note on the required schedule.
+- Added `AppState` so the current shell reflects configuration, discovery,
+  refresh, ready, auth-error, and request-error phases.
+- Added automated coverage for cookie parsing, account-card selection, Daily
+  Note decoding, error classification, and the one-time discovery plus
+  steady-state polling behavior, then recorded the executed verification in
+  `doc/validation.md`.

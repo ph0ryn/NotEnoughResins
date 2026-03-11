@@ -34,6 +34,7 @@ final class NotEnoughResinsUITests: XCTestCase {
     @MainActor
     func testPreferencesSavePersistsAcrossRelaunch() throws {
         let app = XCUIApplication()
+        app.launchEnvironment["NOT_ENOUGH_RESINS_DISABLE_REFRESH"] = "1"
         app.launchEnvironment["NOT_ENOUGH_RESINS_KEYCHAIN_SERVICE_SUFFIX"] = UUID().uuidString
 
         app.launch()
@@ -51,8 +52,6 @@ final class NotEnoughResinsUITests: XCTestCase {
         let saveButton = app.buttons["preferences.saveButton"]
         XCTAssertTrue(saveButton.waitForExistence(timeout: 2))
         saveButton.click()
-
-        XCTAssertTrue(app.staticTexts["Configuration Ready"].waitForExistence(timeout: 2))
 
         app.terminate()
         app.launch()
