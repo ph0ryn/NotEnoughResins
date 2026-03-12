@@ -12,7 +12,9 @@ final class AppState: ObservableObject {
 
     private let preferencesStore: PreferencesStore
     private let refreshCoordinator: RefreshCoordinator
+    private let presentationBuilder = AppPresentationBuilder()
     private let refreshEnabled: Bool
+    private var derivedResinStateOverride: DerivedResinState?
     private var cancellables: Set<AnyCancellable> = []
 
     init(
@@ -87,6 +89,41 @@ final class AppState: ObservableObject {
     }
 
     func derivedResinState(at date: Date = Date()) -> DerivedResinState? {
-        refreshCoordinator.derivedResinState(at: date)
+        if let derivedResinStateOverride {
+            return derivedResinStateOverride
+        }
+
+        return refreshCoordinator.derivedResinState(at: date)
     }
+
+    var presentation: AppPresentation {
+        presentationBuilder.makePresentation(
+            configurationState: configurationState,
+            refreshPhase: refreshPhase,
+            resolvedAccount: resolvedAccount,
+            latestSnapshot: latestSnapshot,
+            derivedResinState: derivedResinState(),
+            lastSuccessfulFetchAt: lastSuccessfulFetchAt
+        )
+    }
+
+#if DEBUG
+    func applyDebugState(
+        configurationState: PreferencesStore.ConfigurationState,
+        refreshPhase: RefreshCoordinator.Phase,
+        resolvedAccount: ResolvedAccount?,
+        latestSnapshot: DailyNoteSnapshot?,
+        derivedResinState: DerivedResinState?,
+        lastSuccessfulFetchAt: Date?,
+        trackingState: ResinTrackingState
+    ) {
+        self.configurationState = configurationState
+        self.refreshPhase = refreshPhase
+        self.resolvedAccount = resolvedAccount
+        self.latestSnapshot = latestSnapshot
+        self.lastSuccessfulFetchAt = lastSuccessfulFetchAt
+        self.trackingState = trackingState
+        derivedResinStateOverride = derivedResinState
+    }
+#endif
 }
