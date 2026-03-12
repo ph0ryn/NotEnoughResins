@@ -32,3 +32,17 @@
   Note decoding, error classification, and the one-time discovery plus
   steady-state polling behavior, then recorded the executed verification in
   `doc/validation.md`.
+
+### Task 04 - Persist snapshots and derive resin waste
+
+- Added a `SnapshotStore` backed by `UserDefaults` plus account-aware restore
+  logic so the latest successful Daily Note snapshot and tracking markers
+  survive relaunch without leaking across account changes.
+- Added `ResinTracker` to derive `predictedFullAt`, known overflow timing, and
+  estimated wasted resin while refusing to fabricate missing overflow history.
+- Wired tracking state into `RefreshCoordinator`, `AppState`, and the current
+  shell so restored or freshly fetched snapshots now expose derived resin and
+  waste values.
+- Added automated coverage for snapshot persistence, relaunch restore, derived
+  resin progression, and overflow waste calculation, then recorded the executed
+  verification in `doc/validation.md`.
