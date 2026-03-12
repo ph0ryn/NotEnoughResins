@@ -10,6 +10,7 @@ import AppKit
 
 struct ContentView: View {
     @EnvironmentObject private var appState: AppState
+    @Environment(\.openSettings) private var openSettings
 
     var body: some View {
         let presentation = appState.presentation
@@ -67,7 +68,7 @@ struct ContentView: View {
 
             HStack(spacing: 12) {
                 Button {
-                    openSettings()
+                    presentSettings()
                 } label: {
                     Label("Preferences", systemImage: "gearshape")
                 }
@@ -105,8 +106,7 @@ struct ContentView: View {
         }
     }
 
-    private func openSettings() {
-        NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
-        NSApp.activate(ignoringOtherApps: true)
+    private func presentSettings() {
+        openSettings()
     }
 }

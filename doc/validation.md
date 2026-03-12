@@ -138,8 +138,8 @@ Executed coverage:
   top-level panel state titles for each scenario, and the setup-needed panel's
   Preferences and Quit actions without requiring a standard launch window.
 - The existing preferences relaunch UI test still passed with isolated Keychain
-  and `UserDefaults` suffixes by opening Settings with `Command+,`, so the
-  task05 menu bar work did not regress the stored-cookie flow.
+  and `UserDefaults` suffixes by clicking the panel's Preferences action, so
+  the task05 menu bar work did not regress the stored-cookie flow.
 
 ## Requirement Coverage
 

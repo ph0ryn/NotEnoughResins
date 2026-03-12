@@ -85,7 +85,9 @@ final class NotEnoughResinsUITests: XCTestCase {
 
         XCTAssertTrue(app.staticTexts["Configuration Needed"].waitForExistence(timeout: 2))
 
-        app.typeKey(",", modifierFlags: .command)
+        let openPreferences = element(in: app, id: "content.openPreferences")
+        XCTAssertTrue(openPreferences.waitForExistence(timeout: 2))
+        openPreferences.click()
 
         let cookieEditor = app.textViews["preferences.cookieEditor"]
         XCTAssertTrue(cookieEditor.waitForExistence(timeout: 2))
