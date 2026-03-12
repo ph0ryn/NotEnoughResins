@@ -136,8 +136,9 @@ func makeDailyNoteSnapshot(
     extraTaskRewardReceived: Bool = true,
     remainingResinDiscounts: Int = 3,
     resinDiscountLimit: Int = 3,
-    currentExpeditionCount: Int = 2,
-    maxExpeditionCount: Int = 5
+    currentExpeditionCount: Int? = nil,
+    maxExpeditionCount: Int = 5,
+    expeditions: [DailyNoteExpedition] = makeDailyNoteExpeditions()
 ) -> DailyNoteSnapshot {
     DailyNoteSnapshot(
         fetchedAt: fetchedAt,
@@ -152,7 +153,33 @@ func makeDailyNoteSnapshot(
         extraTaskRewardReceived: extraTaskRewardReceived,
         remainingResinDiscounts: remainingResinDiscounts,
         resinDiscountLimit: resinDiscountLimit,
-        currentExpeditionCount: currentExpeditionCount,
-        maxExpeditionCount: maxExpeditionCount
+        currentExpeditionCount: currentExpeditionCount ?? expeditions.count,
+        maxExpeditionCount: maxExpeditionCount,
+        expeditions: expeditions
+    )
+}
+
+func makeDailyNoteExpeditions() -> [DailyNoteExpedition] {
+    [
+        makeDailyNoteExpedition(
+            avatarSideIcon: "https://example.com/Character_A.png",
+            remainedTimeSeconds: 1_080
+        ),
+        makeDailyNoteExpedition(
+            avatarSideIcon: "https://example.com/Character_B.png",
+            remainedTimeSeconds: 6_120
+        ),
+    ]
+}
+
+func makeDailyNoteExpedition(
+    avatarSideIcon: String,
+    status: String = "Ongoing",
+    remainedTimeSeconds: Int
+) -> DailyNoteExpedition {
+    DailyNoteExpedition(
+        avatarSideIcon: avatarSideIcon,
+        status: status,
+        remainedTimeSeconds: remainedTimeSeconds
     )
 }
