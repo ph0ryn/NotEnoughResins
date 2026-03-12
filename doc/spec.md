@@ -142,6 +142,8 @@ Clicking the menu bar entry shall open the application's main panel. The panel
 shall show a formatted view of Daily Note data from the latest successful
 snapshot and shall expose:
 
+- Individual expedition entries with per-character remaining time or completion
+  state when expedition data is available.
 - A Preferences action.
 - A Quit action.
 
@@ -230,6 +232,8 @@ required baseline is missing.
   state.
 - Clicking the menu bar entry opens a panel that exposes formatted Daily Note
   data plus Preferences and Quit actions.
+- When expedition data is available, the main panel shows each expedition
+  separately instead of only an aggregate expedition count.
 - Resin waste is only shown when the application has enough data to support the
   estimate.
 - Configuration and tracking state survive application relaunch.

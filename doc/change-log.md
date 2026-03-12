@@ -1,5 +1,21 @@
 # NotEnoughResins Change Log
 
+## 2026-03-13
+
+### Planning - AppPresentation redesign
+
+- Added `doc/app-presentation-redesign.md` to define the follow-up redesign of
+  `AppPresentation` away from a flat field list and toward a semantic panel
+  model with hero, account, and grouped section content.
+- Added `doc/task/task_08.md` to scope the implementation work for the new
+  presentation model, view updates, and semantic test coverage.
+- Refined the redesign plan so expedition data is preserved per character and
+  the panel can show one expedition row per character with remaining time or a
+  completed state.
+- Further refined the panel layout toward a compact markdown-like structure:
+  header account context, resin hero, one ordered metrics block, and an
+  `Expeditions n/n` list.
+
 ## 2026-03-12
 
 ### One-shot - Pin debug overflow start to yesterday
