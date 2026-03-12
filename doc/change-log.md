@@ -46,3 +46,17 @@
 - Added automated coverage for snapshot persistence, relaunch restore, derived
   resin progression, and overflow waste calculation, then recorded the executed
   verification in `doc/validation.md`.
+
+### Task 05 - Deliver the menu bar and main panel UX
+
+- Replaced the default window-first app entry with a `MenuBarExtra` shell and
+  added compact menu bar label rendering for setup-needed, loading, normal,
+  overflow, auth-error, and request-error states.
+- Added `AppPresentation` mapping so the menu bar label and main panel derive
+  their user-facing copy, symbols, and Daily Note summary fields from shared
+  application state instead of embedding UI logic directly in the views.
+- Rebuilt the main panel as a compact Daily Note summary with last successful
+  refresh time plus Preferences and Quit actions, and added a debug UI-test
+  host for deterministic state-driven verification.
+- Extended automated coverage for menu bar and panel presentation states, then
+  recorded the executed verification in `doc/validation.md`.

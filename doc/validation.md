@@ -119,6 +119,28 @@ Executed coverage:
 - The current shell now renders derived resin and estimated waste from the
   shared tracking state instead of showing only the last raw server snapshot.
 
+### 2026-03-12 - Task 05 menu bar and main panel verification
+
+- Command:
+  `xcodebuild test -scheme NotEnoughResins -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY=-`
+- Result: passed
+
+Executed coverage:
+
+- `AppPresentationTests` covered setup-needed, normal, overflow, auth-error,
+  and request-error presentation mapping from shared app state, including the
+  expected Daily Note summary fields for ready and failure presentations.
+- `NotEnoughResinsUITests` exercised deterministic setup-needed, normal,
+  overflow, auth-error, and request-error UI scenarios through a debug host
+  window that renders the same menu bar label view and main panel content used
+  by the `MenuBarExtra`.
+- The state-driven UI checks verified compact menu bar label rendering, the
+  top-level panel state titles for each scenario, and the setup-needed panel's
+  Preferences and Quit actions without requiring a standard launch window.
+- The existing preferences relaunch UI test still passed with isolated Keychain
+  and `UserDefaults` suffixes by opening Settings with `Command+,`, so the
+  task05 menu bar work did not regress the stored-cookie flow.
+
 ## Requirement Coverage
 
 - FR-1, FR-2, FR-10: preferences and persistence checks.
@@ -131,7 +153,8 @@ Executed coverage:
 
 - A separate manual walkthrough for the task04 relaunch boundary scenario was
   not executed after the automated coverage landed.
-- Final menu bar and main-panel UI checks are still pending execution in Tasks
-  05 and 06.
+- A true manual click-through on the live macOS menu bar extra was not recorded
+  yet; the executed task05 coverage uses a state-driven debug host window
+  because XCTest does not reliably introspect the system menu bar item itself.
 - No CI status was checked because the repository does not yet expose remote CI
   to this workflow.
