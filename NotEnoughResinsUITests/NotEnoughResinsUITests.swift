@@ -5,6 +5,7 @@
 //  Created by ph0ryn on 2026/03/12.
 //
 
+import Foundation
 import XCTest
 
 final class NotEnoughResinsUITests: XCTestCase {
@@ -45,8 +46,95 @@ final class NotEnoughResinsUITests: XCTestCase {
         app.windows["NotEnoughResins Debug"].descendants(matching: .any)[id]
     }
 
-    private func menuBarStatusItem(in app: XCUIApplication) -> XCUIElement {
-        app.menuBars.descendants(matching: .any)["menuBar.statusLabel"]
+    private func systemUIApp() -> XCUIApplication {
+        XCUIApplication(bundleIdentifier: "com.apple.systemuiserver")
+    }
+
+    private func menuBarStatusItemCandidates(in app: XCUIApplication) -> [XCUIElement] {
+        [
+            app.menuBars.descendants(matching: .any)["menuBar.statusLabel"],
+            systemUIApp().menuBars.descendants(matching: .any)["menuBar.statusLabel"]
+        ]
+    }
+
+    private func panelElementCandidates(in app: XCUIApplication, id: String) -> [XCUIElement] {
+        [
+            app.descendants(matching: .any)[id],
+            systemUIApp().descendants(matching: .any)[id]
+        ]
+    }
+
+    private func waitForAnyElement(
+        _ elements: [XCUIElement],
+        timeout: TimeInterval
+    ) -> XCUIElement? {
+        let deadline = Date().addingTimeInterval(timeout)
+
+        repeat {
+            if let element = elements.first(where: \.exists) {
+                return element
+            }
+
+            RunLoop.current.run(until: Date().addingTimeInterval(0.1))
+        } while Date() < deadline
+
+        return elements.first(where: \.exists)
+    }
+
+    @MainActor
+    private func openMenuBarPanel(
+        in app: XCUIApplication,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        guard let statusItem = waitForAnyElement(menuBarStatusItemCandidates(in: app), timeout: 2) else {
+            XCTFail("Menu bar status item did not appear.", file: file, line: line)
+            return
+        }
+
+        let statusHeader = panelElementCandidates(in: app, id: "content.statusHeader")
+        let openPreferences = panelElementCandidates(in: app, id: "content.openPreferences")
+
+        for _ in 0..<3 {
+            if waitForAnyElement(openPreferences, timeout: 0.1) != nil
+                || waitForAnyElement(statusHeader, timeout: 0.1) != nil {
+                return
+            }
+
+            statusItem.click()
+
+            if waitForAnyElement(openPreferences, timeout: 2) != nil
+                || waitForAnyElement(statusHeader, timeout: 1) != nil {
+                return
+            }
+        }
+
+        XCTFail("Menu bar panel did not appear.", file: file, line: line)
+    }
+
+    private func assertPanelFooterVisible(
+        in app: XCUIApplication,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        guard let openPreferences = waitForAnyElement(
+            panelElementCandidates(in: app, id: "content.openPreferences"),
+            timeout: 2
+        ) else {
+            XCTFail("Preferences button did not appear.", file: file, line: line)
+            return
+        }
+
+        guard let quitButton = waitForAnyElement(
+            panelElementCandidates(in: app, id: "content.quit"),
+            timeout: 2
+        ) else {
+            XCTFail("Quit button did not appear.", file: file, line: line)
+            return
+        }
+
+        XCTAssertTrue(openPreferences.isHittable, file: file, line: line)
+        XCTAssertTrue(quitButton.isHittable, file: file, line: line)
     }
 
     override func setUpWithError() throws {
@@ -86,13 +174,9 @@ final class NotEnoughResinsUITests: XCTestCase {
         let app = makeApp(scenario: "needsConfiguration", showsDebugWindow: false)
         app.launch()
 
-        let statusItem = menuBarStatusItem(in: app)
-        XCTAssertTrue(statusItem.waitForExistence(timeout: 2))
+        openMenuBarPanel(in: app)
 
-        statusItem.click()
-
-        XCTAssertTrue(app.staticTexts["Configuration Needed"].waitForExistence(timeout: 2))
-        XCTAssertTrue(app.buttons["content.quit"].exists)
+        assertPanelFooterVisible(in: app)
     }
 
     @MainActor
@@ -100,12 +184,12 @@ final class NotEnoughResinsUITests: XCTestCase {
         let app = makeApp(scenario: "overflow", showsDebugWindow: false)
         app.launch()
 
-        let statusItem = menuBarStatusItem(in: app)
-        XCTAssertTrue(statusItem.waitForExistence(timeout: 2))
+        openMenuBarPanel(in: app)
 
-        statusItem.click()
-
-        XCTAssertTrue(app.staticTexts["Overflow Detected"].waitForExistence(timeout: 2))
+        XCTAssertNotNil(
+            waitForAnyElement(panelElementCandidates(in: app, id: "content.field.waste"), timeout: 2)
+        )
+        assertPanelFooterVisible(in: app)
     }
 
     @MainActor

@@ -61,3 +61,6 @@
 - Extended automated coverage for menu bar and panel presentation states,
   including real menu bar status-item click smoke tests, then recorded the
   executed verification in `doc/validation.md`.
+- Followed up on the shipped panel layout so the footer actions stay visible in
+  the live menu bar panel, and strengthened the real menu bar smoke tests to
+  assert that Preferences and Quit remain hittable after opening the panel.

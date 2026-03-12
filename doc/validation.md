@@ -136,7 +136,8 @@ Executed coverage:
   by the `MenuBarExtra`.
 - `NotEnoughResinsUITests` also exercised the real macOS menu bar status item
   itself, confirming that clicking the setup-needed and overflow states opens
-  the expected panel content.
+  the expected panel content and keeps the Preferences and Quit footer actions
+  hittable.
 - The state-driven UI checks verified compact menu bar label rendering, the
   top-level panel state titles for each scenario, and the setup-needed panel's
   Preferences and Quit actions without requiring a standard launch window.
@@ -156,8 +157,9 @@ Executed coverage:
 
 - A separate manual walkthrough for the task04 relaunch boundary scenario was
   not executed after the automated coverage landed.
-- A true manual click-through on the live macOS menu bar extra was not recorded
-  yet; the executed task05 coverage uses a state-driven debug host window
-  because XCTest does not reliably introspect the system menu bar item itself.
+- A separate manual visual walkthrough of the live macOS menu bar extra after
+  the footer layout adjustment was not recorded yet; automated coverage now
+  clicks the real status item and inspects the panel through the system UI
+  accessibility tree, but it does not replace a human visual pass.
 - No CI status was checked because the repository does not yet expose remote CI
   to this workflow.
