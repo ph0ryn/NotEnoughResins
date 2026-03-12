@@ -14,7 +14,6 @@ struct ContentView: View {
 
     var body: some View {
         let presentation = appState.presentation
-        let panelHeight = preferredPanelHeight(for: presentation)
 
         VStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 16) {
@@ -69,9 +68,7 @@ struct ContentView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 18)
             .padding(.top, 18)
-            .padding(.bottom, 14)
-
-            Spacer(minLength: 0)
+            .padding(.bottom, 10)
 
             Divider()
 
@@ -96,15 +93,12 @@ struct ContentView: View {
                 .accessibilityIdentifier("content.quit")
             }
             .padding(.horizontal, 18)
-            .padding(.vertical, 14)
+            .padding(.vertical, 10)
         }
         .frame(
             minWidth: 340,
             idealWidth: 360,
             maxWidth: 380,
-            minHeight: panelHeight,
-            idealHeight: panelHeight,
-            maxHeight: panelHeight,
             alignment: .topLeading
         )
     }
@@ -126,18 +120,5 @@ struct ContentView: View {
 
     private func presentSettings() {
         openSettings()
-    }
-
-    private func preferredPanelHeight(for presentation: AppPresentation) -> CGFloat {
-        let refreshHeight: CGFloat = presentation.lastRefreshText == nil ? 0 : 24
-        let fieldsHeight: CGFloat
-
-        if presentation.fields.isEmpty {
-            fieldsHeight = 0
-        } else {
-            fieldsHeight = 68 + (CGFloat(presentation.fields.count) * 24)
-        }
-
-        return max(260, 170 + refreshHeight + fieldsHeight)
     }
 }
