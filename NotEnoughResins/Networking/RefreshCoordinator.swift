@@ -36,19 +36,26 @@ final class RefreshCoordinator: ObservableObject {
     @Published private(set) var resolvedAccount: ResolvedAccount?
     @Published private(set) var latestSnapshot: DailyNoteSnapshot?
     @Published private(set) var lastSuccessfulFetchAt: Date?
+    @Published private(set) var trackingState: ResinTrackingState = .empty
 
     private let accountResolver: any AccountResolving
     private let dailyNoteService: any DailyNoteFetching
+    private let snapshotStore: any SnapshotStoring
+    private let resinTracker: ResinTracker
     private let clock: RefreshClock
     private var refreshTask: Task<Void, Never>?
 
     init(
         accountResolver: any AccountResolving,
         dailyNoteService: any DailyNoteFetching,
+        snapshotStore: any SnapshotStoring,
+        resinTracker: ResinTracker = ResinTracker(),
         clock: RefreshClock = SystemRefreshClock()
     ) {
         self.accountResolver = accountResolver
         self.dailyNoteService = dailyNoteService
+        self.snapshotStore = snapshotStore
+        self.resinTracker = resinTracker
         self.clock = clock
     }
 
@@ -59,7 +66,8 @@ final class RefreshCoordinator: ObservableObject {
     static func live(httpClient: HTTPDataLoading = URLSession.shared) -> RefreshCoordinator {
         RefreshCoordinator(
             accountResolver: AccountResolver(httpClient: httpClient),
-            dailyNoteService: DailyNoteService(httpClient: httpClient)
+            dailyNoteService: DailyNoteService(httpClient: httpClient),
+            snapshotStore: SnapshotStore.live()
         )
     }
 
@@ -71,9 +79,11 @@ final class RefreshCoordinator: ObservableObject {
             resolvedAccount = nil
             latestSnapshot = nil
             lastSuccessfulFetchAt = nil
+            trackingState = .empty
             return
         }
 
+        restorePersistedState(for: cookie)
         phase = .discoveringAccount
 
         refreshTask = Task { [weak self] in
@@ -111,9 +121,32 @@ final class RefreshCoordinator: ObservableObject {
             account: account,
             at: clock.now
         )
+        trackingState = resinTracker.updateTrackingState(
+            with: snapshot,
+            previousState: trackingState
+        )
         latestSnapshot = snapshot
         lastSuccessfulFetchAt = snapshot.fetchedAt
+        try? snapshotStore.save(
+            SnapshotStoreRecord(
+                accountIdV2: account.accountIdV2,
+                snapshot: snapshot,
+                trackingState: trackingState
+            )
+        )
         phase = .ready
+    }
+
+    func derivedResinState(at date: Date) -> DerivedResinState? {
+        guard let latestSnapshot else {
+            return nil
+        }
+
+        return resinTracker.derivedState(
+            from: latestSnapshot,
+            trackingState: trackingState,
+            now: date
+        )
     }
 
     private func apply(accountResolverError: AccountResolverError) {
@@ -131,6 +164,37 @@ final class RefreshCoordinator: ObservableObject {
             phase = .authError(dailyNoteServiceError.localizedDescription)
         default:
             phase = .requestError(dailyNoteServiceError.localizedDescription)
+        }
+    }
+
+    private func restorePersistedState(for cookie: String) {
+        guard let accountIdV2 = CookieParser.accountIDV2(from: cookie) else {
+            resolvedAccount = nil
+            latestSnapshot = nil
+            lastSuccessfulFetchAt = nil
+            trackingState = .empty
+            return
+        }
+
+        do {
+            guard let record = try snapshotStore.load(),
+                  record.accountIdV2 == accountIdV2 else {
+                resolvedAccount = nil
+                latestSnapshot = nil
+                lastSuccessfulFetchAt = nil
+                trackingState = .empty
+                return
+            }
+
+            resolvedAccount = nil
+            latestSnapshot = record.snapshot
+            lastSuccessfulFetchAt = record.snapshot.fetchedAt
+            trackingState = record.trackingState
+        } catch {
+            resolvedAccount = nil
+            latestSnapshot = nil
+            lastSuccessfulFetchAt = nil
+            trackingState = .empty
         }
     }
 }

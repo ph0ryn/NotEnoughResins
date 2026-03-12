@@ -15,45 +15,27 @@ struct RefreshCoordinatorTests {
             level: 60
         )
         let snapshots = [
-            DailyNoteSnapshot(
+            makeDailyNoteSnapshot(
                 fetchedAt: clock.now,
                 currentResin: 150,
-                maxResin: 200,
-                resinRecoveryTimeSeconds: 24_000,
-                currentHomeCoin: 1_200,
-                maxHomeCoin: 2_400,
-                homeCoinRecoveryTimeSeconds: 3_600,
-                finishedTaskCount: 4,
-                totalTaskCount: 4,
-                extraTaskRewardReceived: true,
-                remainingResinDiscounts: 3,
-                resinDiscountLimit: 3,
-                currentExpeditionCount: 2,
-                maxExpeditionCount: 5
+                resinRecoveryTimeSeconds: 24_000
             ),
-            DailyNoteSnapshot(
+            makeDailyNoteSnapshot(
                 fetchedAt: clock.now.addingTimeInterval(600),
                 currentResin: 151,
-                maxResin: 200,
                 resinRecoveryTimeSeconds: 23_400,
                 currentHomeCoin: 1_250,
-                maxHomeCoin: 2_400,
-                homeCoinRecoveryTimeSeconds: 3_000,
-                finishedTaskCount: 4,
-                totalTaskCount: 4,
-                extraTaskRewardReceived: true,
-                remainingResinDiscounts: 3,
-                resinDiscountLimit: 3,
-                currentExpeditionCount: 2,
-                maxExpeditionCount: 5
+                homeCoinRecoveryTimeSeconds: 3_000
             ),
         ]
 
         let accountResolver = MockAccountResolver(result: .success(account))
         let dailyNoteService = MockDailyNoteService(results: snapshots.map(Result.success))
+        let snapshotStore = InMemorySnapshotStore()
         let coordinator = RefreshCoordinator(
             accountResolver: accountResolver,
             dailyNoteService: dailyNoteService,
+            snapshotStore: snapshotStore,
             clock: clock
         )
 
@@ -74,6 +56,8 @@ struct RefreshCoordinatorTests {
         #expect(accountResolver.cookies.count == 1)
         #expect(dailyNoteService.requests.count == 2)
         #expect(coordinator.latestSnapshot?.currentResin == 151)
+        #expect(snapshotStore.savedRecords.count == 2)
+        #expect(coordinator.trackingState.predictedFullAt == clock.now.addingTimeInterval(23_400))
     }
 
     @Test
@@ -81,6 +65,7 @@ struct RefreshCoordinatorTests {
         let coordinator = RefreshCoordinator(
             accountResolver: MockAccountResolver(result: .failure(.authFailure)),
             dailyNoteService: MockDailyNoteService(results: []),
+            snapshotStore: InMemorySnapshotStore(),
             clock: ManualRefreshClock(now: Date())
         )
 
@@ -89,5 +74,66 @@ struct RefreshCoordinatorTests {
 
         #expect(coordinator.phase == .authError("HoYoLAB rejected the saved cookie. Please sign in again."))
         #expect(coordinator.latestSnapshot == nil)
+    }
+
+    @Test
+    func restoresMatchingPersistedSnapshotBeforeStartupRefresh() async {
+        let restoredAt = Date(timeIntervalSince1970: 1_741_700_000)
+        let snapshotStore = InMemorySnapshotStore()
+        snapshotStore.storedRecord = SnapshotStoreRecord(
+            accountIdV2: "12345",
+            snapshot: makeDailyNoteSnapshot(
+                fetchedAt: restoredAt,
+                currentResin: 180,
+                resinRecoveryTimeSeconds: 9_600
+            ),
+            trackingState: ResinTrackingState(
+                lastBelowCapSnapshotAt: restoredAt,
+                predictedFullAt: restoredAt.addingTimeInterval(9_600),
+                overflowStartAt: nil,
+                lastKnownWastedResin: nil
+            )
+        )
+
+        let coordinator = RefreshCoordinator(
+            accountResolver: MockAccountResolver(result: .failure(.transportFailure("stop"))),
+            dailyNoteService: MockDailyNoteService(results: []),
+            snapshotStore: snapshotStore,
+            clock: ManualRefreshClock(now: restoredAt)
+        )
+
+        coordinator.start(cookie: "account_id_v2=12345; cookie_token_v2=abcdef")
+        await Task.yield()
+
+        #expect(coordinator.latestSnapshot?.currentResin == 180)
+        #expect(coordinator.lastSuccessfulFetchAt == restoredAt)
+        #expect(coordinator.trackingState.predictedFullAt == restoredAt.addingTimeInterval(9_600))
+        #expect(coordinator.phase == .requestError("stop"))
+    }
+
+    @Test
+    func ignoresPersistedSnapshotWhenCookieBelongsToDifferentAccount() {
+        let snapshotStore = InMemorySnapshotStore()
+        snapshotStore.storedRecord = SnapshotStoreRecord(
+            accountIdV2: "12345",
+            snapshot: makeDailyNoteSnapshot(
+                fetchedAt: Date(timeIntervalSince1970: 1_741_700_000),
+                currentResin: 180,
+                resinRecoveryTimeSeconds: 9_600
+            ),
+            trackingState: .empty
+        )
+
+        let coordinator = RefreshCoordinator(
+            accountResolver: MockAccountResolver(result: .failure(.missingAccountID)),
+            dailyNoteService: MockDailyNoteService(results: []),
+            snapshotStore: snapshotStore,
+            clock: ManualRefreshClock(now: Date())
+        )
+
+        coordinator.start(cookie: "account_id_v2=99999; cookie_token_v2=abcdef")
+
+        #expect(coordinator.latestSnapshot == nil)
+        #expect(coordinator.trackingState == .empty)
     }
 }

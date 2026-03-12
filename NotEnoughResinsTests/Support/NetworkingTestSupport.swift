@@ -17,6 +17,34 @@ final class MockHTTPClient: HTTPDataLoading {
     }
 }
 
+final class InMemorySnapshotStore: SnapshotStoring {
+    var storedRecord: SnapshotStoreRecord?
+    var loadError: Error?
+    var saveError: Error?
+    private(set) var savedRecords: [SnapshotStoreRecord] = []
+
+    func load() throws -> SnapshotStoreRecord? {
+        if let loadError {
+            throw loadError
+        }
+
+        return storedRecord
+    }
+
+    func save(_ record: SnapshotStoreRecord) throws {
+        if let saveError {
+            throw saveError
+        }
+
+        storedRecord = record
+        savedRecords.append(record)
+    }
+
+    func clear() throws {
+        storedRecord = nil
+    }
+}
+
 @MainActor
 final class ManualRefreshClock: RefreshClock {
     var now: Date
@@ -87,4 +115,38 @@ final class MockDailyNoteService: DailyNoteFetching {
 
 func makeHTTPURLResponse(for url: URL, statusCode: Int = 200) -> HTTPURLResponse {
     HTTPURLResponse(url: url, statusCode: statusCode, httpVersion: nil, headerFields: nil)!
+}
+
+func makeDailyNoteSnapshot(
+    fetchedAt: Date,
+    currentResin: Int,
+    maxResin: Int = 200,
+    resinRecoveryTimeSeconds: Int,
+    currentHomeCoin: Int = 1_200,
+    maxHomeCoin: Int = 2_400,
+    homeCoinRecoveryTimeSeconds: Int = 3_600,
+    finishedTaskCount: Int = 4,
+    totalTaskCount: Int = 4,
+    extraTaskRewardReceived: Bool = true,
+    remainingResinDiscounts: Int = 3,
+    resinDiscountLimit: Int = 3,
+    currentExpeditionCount: Int = 2,
+    maxExpeditionCount: Int = 5
+) -> DailyNoteSnapshot {
+    DailyNoteSnapshot(
+        fetchedAt: fetchedAt,
+        currentResin: currentResin,
+        maxResin: maxResin,
+        resinRecoveryTimeSeconds: resinRecoveryTimeSeconds,
+        currentHomeCoin: currentHomeCoin,
+        maxHomeCoin: maxHomeCoin,
+        homeCoinRecoveryTimeSeconds: homeCoinRecoveryTimeSeconds,
+        finishedTaskCount: finishedTaskCount,
+        totalTaskCount: totalTaskCount,
+        extraTaskRewardReceived: extraTaskRewardReceived,
+        remainingResinDiscounts: remainingResinDiscounts,
+        resinDiscountLimit: resinDiscountLimit,
+        currentExpeditionCount: currentExpeditionCount,
+        maxExpeditionCount: maxExpeditionCount
+    )
 }

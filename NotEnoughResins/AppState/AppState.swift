@@ -8,6 +8,7 @@ final class AppState: ObservableObject {
     @Published private(set) var resolvedAccount: ResolvedAccount?
     @Published private(set) var latestSnapshot: DailyNoteSnapshot?
     @Published private(set) var lastSuccessfulFetchAt: Date?
+    @Published private(set) var trackingState: ResinTrackingState
 
     private let preferencesStore: PreferencesStore
     private let refreshCoordinator: RefreshCoordinator
@@ -27,6 +28,7 @@ final class AppState: ObservableObject {
         resolvedAccount = refreshCoordinator.resolvedAccount
         latestSnapshot = refreshCoordinator.latestSnapshot
         lastSuccessfulFetchAt = refreshCoordinator.lastSuccessfulFetchAt
+        trackingState = refreshCoordinator.trackingState
         bind()
         restartRefreshIfNeeded()
     }
@@ -67,6 +69,12 @@ final class AppState: ObservableObject {
                 self?.lastSuccessfulFetchAt = date
             }
             .store(in: &cancellables)
+
+        refreshCoordinator.$trackingState
+            .sink { [weak self] trackingState in
+                self?.trackingState = trackingState
+            }
+            .store(in: &cancellables)
     }
 
     private func restartRefreshIfNeeded() {
@@ -76,5 +84,9 @@ final class AppState: ObservableObject {
         }
 
         refreshCoordinator.start(cookie: preferencesStore.cookie)
+    }
+
+    func derivedResinState(at date: Date = Date()) -> DerivedResinState? {
+        refreshCoordinator.derivedResinState(at: date)
     }
 }
