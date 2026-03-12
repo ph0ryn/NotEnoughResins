@@ -64,3 +64,14 @@
 - Followed up on the shipped panel layout so the footer actions stay visible in
   the live menu bar panel, and strengthened the real menu bar smoke tests to
   assert that Preferences and Quit remain hittable after opening the panel.
+
+### Task 06 - Close validation and documentation gaps
+
+- Re-ran the full `xcodebuild test` suite on the integrated branch and
+  confirmed the existing automated coverage already closes the planned task06
+  gaps for parsing, account selection, decoding, restore, tracking, and UI
+  presentation states.
+- Ran repository-standard Markdown lint across `doc/**/*.md` and confirmed the
+  current SDD artifacts remain consistent and lint-clean.
+- Updated `doc/validation.md` to record the executed task06 verification sweep,
+  the documentation check, and the remaining manual-only residual gaps.

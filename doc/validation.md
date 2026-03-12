@@ -2,7 +2,7 @@
 
 ## Document Status
 
-- Status: Partially Executed
+- Status: Executed with residual gaps
 - Last updated: 2026-03-12
 - Related requirements: `doc/spec.md`
 - Related design: `doc/design.md`
@@ -144,6 +144,35 @@ Executed coverage:
 - The existing preferences relaunch UI test still passed with isolated Keychain
   and `UserDefaults` suffixes by clicking the panel's Preferences action, so
   the task05 menu bar work did not regress the stored-cookie flow.
+
+### 2026-03-12 - Task 06 release validation sweep
+
+- Command:
+  `xcodebuild test -scheme NotEnoughResins -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY=-`
+- Result: passed
+
+Executed coverage:
+
+- Re-ran the full unit and UI suite on the integrated branch and confirmed the
+  cumulative task02-task05 coverage still passes together.
+- Verified automated coverage exists for cookie parsing, game-card account
+  selection, Daily Note decoding, scheduled refresh behavior, resin tracking,
+  snapshot persistence restore, and menu bar or panel presentation states.
+- Confirmed the persistence restore path still passes through the relaunch UI
+  test and the restore-before-refresh coordinator test in the same suite run.
+
+### 2026-03-12 - Task 06 documentation verification
+
+- Command:
+  `markdownlint-cli2 "doc/**/*.md" --config ~/.markdownlint-cli2.jsonc`
+- Result: passed
+
+Executed coverage:
+
+- Confirmed the spec, design, task, validation, and change-log documents pass
+  the repository-standard Markdown lint configuration.
+- Recorded the task06 validation closure after confirming no additional
+  product-code changes were required to satisfy the planned coverage.
 
 ## Requirement Coverage
 
