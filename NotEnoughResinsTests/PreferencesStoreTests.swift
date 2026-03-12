@@ -1,5 +1,5 @@
-import Testing
 @testable import NotEnoughResins
+import Testing
 
 @MainActor
 struct PreferencesStoreTests {

@@ -7,7 +7,8 @@ enum UITestWindowController {
 
     static func openIfNeeded(appState: AppState) {
         guard ProcessInfo.processInfo.environment["NOT_ENOUGH_RESINS_UI_TEST_WINDOW"] == "1",
-              window == nil else {
+              window == nil
+        else {
             return
         }
 

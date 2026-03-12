@@ -96,8 +96,14 @@ final class MockAccountResolver: AccountResolving {
 
 @MainActor
 final class MockDailyNoteService: DailyNoteFetching {
+    struct Request: Equatable {
+        let cookie: String
+        let account: ResolvedAccount
+        let fetchedAt: Date
+    }
+
     private var queuedResults: [Result<DailyNoteSnapshot, DailyNoteServiceError>]
-    private(set) var requests: [(cookie: String, account: ResolvedAccount, fetchedAt: Date)] = []
+    private(set) var requests: [Request] = []
 
     init(results: [Result<DailyNoteSnapshot, DailyNoteServiceError>]) {
         queuedResults = results
@@ -108,7 +114,7 @@ final class MockDailyNoteService: DailyNoteFetching {
         account: ResolvedAccount,
         at fetchedAt: Date
     ) async throws -> DailyNoteSnapshot {
-        requests.append((cookie: cookie, account: account, fetchedAt: fetchedAt))
+        requests.append(Request(cookie: cookie, account: account, fetchedAt: fetchedAt))
         return try queuedResults.removeFirst().get()
     }
 }

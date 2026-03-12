@@ -1,11 +1,11 @@
 import Foundation
-import Testing
 @testable import NotEnoughResins
+import Testing
 
 @MainActor
 struct RefreshCoordinatorTests {
     @Test
-    func startupDiscoveryRunsOnceBeforeInitialAndScheduledRefreshes() async throws {
+    func startupDiscoveryRunsOnceBeforeInitialAndScheduledRefreshes() async {
         let clock = ManualRefreshClock(now: Date(timeIntervalSince1970: 1_741_600_000))
         let account = ResolvedAccount(
             accountIdV2: "12345",

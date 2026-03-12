@@ -25,7 +25,8 @@ struct KeychainStore: KeychainStoring {
         switch status {
         case errSecSuccess:
             guard let data = item as? Data,
-                  let value = String(data: data, encoding: .utf8) else {
+                  let value = String(data: data, encoding: .utf8)
+            else {
                 throw StoreError.invalidStoredValue
             }
             return value

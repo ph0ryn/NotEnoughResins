@@ -12,10 +12,10 @@ struct MenuBarStatusLabel: View {
             case .loading:
                 Image(systemName: "arrow.triangle.2.circlepath.circle.fill")
                 Text("Loading")
-            case .normal(let current, let max):
+            case let .normal(current, max):
                 Text("\(current) / \(max)")
                 Image(systemName: "drop.fill")
-            case .overflow(let wasted):
+            case let .overflow(wasted):
                 Image(systemName: "trash.fill")
                 Text("\(wasted)")
                 Image(systemName: "drop.fill")
@@ -40,9 +40,9 @@ struct MenuBarStatusLabel: View {
             "Set Up"
         case .loading:
             "Loading"
-        case .normal(let current, let max):
+        case let .normal(current, max):
             "\(current) / \(max)"
-        case .overflow(let wasted):
+        case let .overflow(wasted):
             "Waste \(wasted)"
         case .authError:
             "Auth"

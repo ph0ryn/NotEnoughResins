@@ -5,8 +5,8 @@
 //  Created by ph0ryn on 2026/03/12.
 //
 
-import SwiftUI
 import AppKit
+import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject private var appState: AppState

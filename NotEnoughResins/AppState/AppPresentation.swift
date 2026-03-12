@@ -25,10 +25,7 @@ struct AppPresentation: Equatable {
 }
 
 struct AppPresentationBuilder {
-    nonisolated init() {}
-
-    nonisolated
-    func makePresentation(
+    nonisolated func makePresentation(
         configurationState: PreferencesStore.ConfigurationState,
         refreshPhase: RefreshCoordinator.Phase,
         resolvedAccount: ResolvedAccount?,
@@ -131,7 +128,7 @@ struct AppPresentationBuilder {
                     fields: fields
                 )
 
-            case .authError(let message):
+            case let .authError(message):
                 return AppPresentation(
                     menuBarState: .authError,
                     title: "Authentication Failed",
@@ -141,7 +138,7 @@ struct AppPresentationBuilder {
                     fields: fields
                 )
 
-            case .requestError(let message):
+            case let .requestError(message):
                 return AppPresentation(
                     menuBarState: .requestError,
                     title: "Request Failed",
@@ -154,8 +151,7 @@ struct AppPresentationBuilder {
         }
     }
 
-    nonisolated
-    private func makeReadyMenuBarState(from derivedResinState: DerivedResinState) -> AppPresentation.MenuBarState {
+    private nonisolated func makeReadyMenuBarState(from derivedResinState: DerivedResinState) -> AppPresentation.MenuBarState {
         if let wastedResin = derivedResinState.wastedResin {
             return .overflow(wasted: wastedResin)
         }
@@ -166,8 +162,7 @@ struct AppPresentationBuilder {
         )
     }
 
-    nonisolated
-    private func title(for menuBarState: AppPresentation.MenuBarState) -> String {
+    private nonisolated func title(for menuBarState: AppPresentation.MenuBarState) -> String {
         switch menuBarState {
         case .needsConfiguration:
             "Configuration Needed"
@@ -184,8 +179,7 @@ struct AppPresentationBuilder {
         }
     }
 
-    nonisolated
-    private func symbolName(for menuBarState: AppPresentation.MenuBarState) -> String {
+    private nonisolated func symbolName(for menuBarState: AppPresentation.MenuBarState) -> String {
         switch menuBarState {
         case .needsConfiguration:
             "exclamationmark.triangle.fill"
@@ -202,8 +196,7 @@ struct AppPresentationBuilder {
         }
     }
 
-    nonisolated
-    private func readyMessage(
+    private nonisolated func readyMessage(
         resolvedAccount: ResolvedAccount?,
         derivedResinState: DerivedResinState
     ) -> String {
@@ -226,14 +219,14 @@ struct AppPresentationBuilder {
         return "Showing the latest resin summary for \(accountSummary)."
     }
 
-    nonisolated
-    private func makeFields(
+    private nonisolated func makeFields(
         resolvedAccount: ResolvedAccount?,
         latestSnapshot: DailyNoteSnapshot?,
         derivedResinState: DerivedResinState?
     ) -> [AppPresentation.PanelField] {
         guard let latestSnapshot,
-              let derivedResinState else {
+              let derivedResinState
+        else {
             return []
         }
 
