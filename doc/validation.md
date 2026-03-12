@@ -174,6 +174,27 @@ Executed coverage:
 - Recorded the task06 validation closure after confirming no additional
   product-code changes were required to satisfy the planned coverage.
 
+### 2026-03-12 - Requirements and implementation consistency review
+
+- Compared the current version 1 implementation and automated coverage with
+  `doc/spec.md` and `doc/design.md`
+- Result: follow-up required
+
+Observed artifact drift:
+
+- `doc/spec.md` still marks the requirements artifact as draft and still says
+  the repository only contains the default SwiftUI scaffold, even though the
+  menu bar app, networking, persistence, tracking, and tests now exist.
+- `doc/design.md` still marks the design artifact as draft and still describes
+  the project as the pre-implementation window-first template, so its baseline
+  no longer matches the brownfield codebase.
+- `doc/spec.md` still lists the main-panel field set and the configuration or
+  authentication copy and iconography as unresolved, even though version 1 now
+  ships concrete choices and automated presentation coverage for them.
+- Added `doc/task/task_07.md` to refresh the SDD artifacts so the
+  requirements-design-validation chain reflects the implemented version 1
+  baseline and any real remaining follow-up.
+
 ## Requirement Coverage
 
 - FR-1, FR-2, FR-10: preferences and persistence checks.

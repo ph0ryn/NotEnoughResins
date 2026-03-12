@@ -75,3 +75,13 @@
   current SDD artifacts remain consistent and lint-clean.
 - Updated `doc/validation.md` to record the executed task06 verification sweep,
   the documentation check, and the remaining manual-only residual gaps.
+
+### Post-Implementation Artifact Review
+
+- Re-checked the implemented version 1 app against `doc/spec.md` and
+  `doc/design.md` after the full task02-task06 delivery had landed.
+- Recorded the resulting documentation drift in `doc/validation.md`, including
+  stale pre-implementation baseline language and outdated unresolved-item text.
+- Added `doc/task/task_07.md` to refresh the requirements and design artifacts
+  so future work starts from the shipped brownfield baseline instead of the
+  original scaffold-era descriptions.
