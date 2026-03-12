@@ -2,6 +2,15 @@
 
 ## 2026-03-12
 
+### One-shot - Pin debug overflow start to yesterday
+
+- Added a DEBUG-only overflow-start override in `ResinTracker` so local app
+  launches treat capped resin as if overflow started at `15:00` yesterday,
+  making overflow and waste UI easier to inspect during development.
+- Kept the shipped prediction-based overflow-start logic unchanged for tests
+  and non-DEBUG builds so automated coverage and release behavior still follow
+  the documented tracking rules.
+
 ### Task 01 - Confirm HoYoLAB contract and test fixtures
 
 - Updated `doc/task/task_01_evidence.md` with the latest live verification

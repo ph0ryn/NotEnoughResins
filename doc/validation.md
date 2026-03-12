@@ -61,6 +61,28 @@ Observed outcomes:
 - No requirement or design deltas were needed before downstream implementation
   started.
 
+### 2026-03-12 - One-shot debug overflow-start override
+
+- Command:
+  `xcodebuild test -scheme NotEnoughResins -destination 'platform=macOS' -skip-testing:NotEnoughResinsUITests CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY=-`
+- Result: passed
+
+Executed coverage:
+
+- Added a DEBUG-only local-development override so capped resin snapshots use
+  `15:00` yesterday as the temporary `overflowStartAt` baseline outside XCTest
+  runs.
+- Left the production and test-path overflow derivation unchanged so the
+  prediction-based logic still governs automated coverage and release builds.
+
+Additional note:
+
+- A full `xcodebuild test -scheme NotEnoughResins -destination 'platform=macOS'
+  CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY=-` run still hit the existing UI
+  accessibility flake while waiting for `menuBar.statusLabel`, including
+  `testAuthErrorScenarioShowsNonNormalStatus` and
+  `testMenuBarStatusItemOpensPanel`.
+
 ### 2026-03-12 - Task 02 configuration and preferences verification
 
 - Command:

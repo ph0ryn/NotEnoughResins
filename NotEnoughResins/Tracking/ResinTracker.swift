@@ -104,6 +104,30 @@ struct ResinTracker {
         predictedFullAt: Date?,
         fetchedAt: Date
     ) -> Date? {
+#if DEBUG
+        // Development builds pin overflow start to a fixed time yesterday so the
+        // overflow UI remains visible during local iteration without mutating
+        // live account data.
+        if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil {
+            var calendar = Calendar(identifier: .gregorian)
+            calendar.timeZone = .current
+            let yesterday = calendar.date(byAdding: .day, value: -1, to: fetchedAt)
+                ?? fetchedAt.addingTimeInterval(-86_400)
+            let yesterdayComponents = calendar.dateComponents([.year, .month, .day], from: yesterday)
+
+            return calendar.date(
+                from: DateComponents(
+                    year: yesterdayComponents.year,
+                    month: yesterdayComponents.month,
+                    day: yesterdayComponents.day,
+                    hour: 15,
+                    minute: 0,
+                    second: 0
+                )
+            ) ?? yesterday
+        }
+#endif
+
         guard let predictedFullAt, predictedFullAt <= fetchedAt else {
             return nil
         }
