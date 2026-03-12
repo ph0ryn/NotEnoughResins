@@ -212,11 +212,7 @@ struct AppPresentationBuilder {
             accountSummary = "the saved account"
         }
 
-        if let wastedResin = derivedResinState.wastedResin {
-            return "Natural recovery has overflowed for \(accountSummary). Estimated wasted resin: \(wastedResin)."
-        }
-
-        return "Showing the latest resin summary for \(accountSummary)."
+        return "Current account: \(accountSummary)"
     }
 
     private nonisolated func makeFields(
