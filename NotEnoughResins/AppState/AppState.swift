@@ -107,23 +107,23 @@ final class AppState: ObservableObject {
         )
     }
 
-#if DEBUG
-    func applyDebugState(
-        configurationState: PreferencesStore.ConfigurationState,
-        refreshPhase: RefreshCoordinator.Phase,
-        resolvedAccount: ResolvedAccount?,
-        latestSnapshot: DailyNoteSnapshot?,
-        derivedResinState: DerivedResinState?,
-        lastSuccessfulFetchAt: Date?,
-        trackingState: ResinTrackingState
-    ) {
-        self.configurationState = configurationState
-        self.refreshPhase = refreshPhase
-        self.resolvedAccount = resolvedAccount
-        self.latestSnapshot = latestSnapshot
-        self.lastSuccessfulFetchAt = lastSuccessfulFetchAt
-        self.trackingState = trackingState
-        derivedResinStateOverride = derivedResinState
-    }
-#endif
+    #if DEBUG
+        func applyDebugState(
+            configurationState: PreferencesStore.ConfigurationState,
+            refreshPhase: RefreshCoordinator.Phase,
+            resolvedAccount: ResolvedAccount?,
+            latestSnapshot: DailyNoteSnapshot?,
+            derivedResinState: DerivedResinState?,
+            lastSuccessfulFetchAt: Date?,
+            trackingState: ResinTrackingState
+        ) {
+            self.configurationState = configurationState
+            self.refreshPhase = refreshPhase
+            self.resolvedAccount = resolvedAccount
+            self.latestSnapshot = latestSnapshot
+            self.lastSuccessfulFetchAt = lastSuccessfulFetchAt
+            self.trackingState = trackingState
+            derivedResinStateOverride = derivedResinState
+        }
+    #endif
 }

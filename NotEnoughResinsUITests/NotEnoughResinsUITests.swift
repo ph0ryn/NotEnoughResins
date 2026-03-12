@@ -53,14 +53,14 @@ final class NotEnoughResinsUITests: XCTestCase {
     private func menuBarStatusItemCandidates(in app: XCUIApplication) -> [XCUIElement] {
         [
             app.menuBars.descendants(matching: .any)["menuBar.statusLabel"],
-            systemUIApp().menuBars.descendants(matching: .any)["menuBar.statusLabel"]
+            systemUIApp().menuBars.descendants(matching: .any)["menuBar.statusLabel"],
         ]
     }
 
     private func panelElementCandidates(in app: XCUIApplication, id: String) -> [XCUIElement] {
         [
             app.descendants(matching: .any)[id],
-            systemUIApp().descendants(matching: .any)[id]
+            systemUIApp().descendants(matching: .any)[id],
         ]
     }
 
@@ -95,16 +95,18 @@ final class NotEnoughResinsUITests: XCTestCase {
         let statusHeader = panelElementCandidates(in: app, id: "content.statusHeader")
         let openPreferences = panelElementCandidates(in: app, id: "content.openPreferences")
 
-        for _ in 0..<3 {
+        for _ in 0 ..< 3 {
             if waitForAnyElement(openPreferences, timeout: 0.1) != nil
-                || waitForAnyElement(statusHeader, timeout: 0.1) != nil {
+                || waitForAnyElement(statusHeader, timeout: 0.1) != nil
+            {
                 return
             }
 
             statusItem.click()
 
             if waitForAnyElement(openPreferences, timeout: 2) != nil
-                || waitForAnyElement(statusHeader, timeout: 1) != nil {
+                || waitForAnyElement(statusHeader, timeout: 1) != nil
+            {
                 return
             }
         }
@@ -159,7 +161,7 @@ final class NotEnoughResinsUITests: XCTestCase {
     }
 
     @MainActor
-    func testExample() throws {
+    func testExample() {
         let app = makeApp(scenario: "needsConfiguration")
         app.launch()
 
@@ -170,7 +172,7 @@ final class NotEnoughResinsUITests: XCTestCase {
     }
 
     @MainActor
-    func testMenuBarStatusItemOpensPanel() throws {
+    func testMenuBarStatusItemOpensPanel() {
         let app = makeApp(scenario: "needsConfiguration", showsDebugWindow: false)
         app.launch()
 
@@ -180,7 +182,7 @@ final class NotEnoughResinsUITests: XCTestCase {
     }
 
     @MainActor
-    func testMenuBarStatusItemOpensOverflowPanel() throws {
+    func testMenuBarStatusItemOpensOverflowPanel() {
         let app = makeApp(scenario: "overflow", showsDebugWindow: false)
         app.launch()
 
@@ -193,7 +195,7 @@ final class NotEnoughResinsUITests: XCTestCase {
     }
 
     @MainActor
-    func testPreferencesSavePersistsAcrossRelaunch() throws {
+    func testPreferencesSavePersistsAcrossRelaunch() {
         let isolationSuffix = UUID().uuidString
         let app = makeApp(
             keychainServiceSuffix: isolationSuffix,
@@ -225,7 +227,7 @@ final class NotEnoughResinsUITests: XCTestCase {
     }
 
     @MainActor
-    func testNormalScenarioShowsMenuBarAndPanelSummary() throws {
+    func testNormalScenarioShowsMenuBarAndPanelSummary() {
         let app = makeApp(scenario: "normal")
         app.launch()
 
@@ -234,7 +236,7 @@ final class NotEnoughResinsUITests: XCTestCase {
     }
 
     @MainActor
-    func testOverflowScenarioShowsWasteStatus() throws {
+    func testOverflowScenarioShowsWasteStatus() {
         let app = makeApp(scenario: "overflow")
         app.launch()
 
@@ -243,7 +245,7 @@ final class NotEnoughResinsUITests: XCTestCase {
     }
 
     @MainActor
-    func testAuthErrorScenarioShowsNonNormalStatus() throws {
+    func testAuthErrorScenarioShowsNonNormalStatus() {
         let app = makeApp(scenario: "authError")
         app.launch()
 
@@ -252,7 +254,7 @@ final class NotEnoughResinsUITests: XCTestCase {
     }
 
     @MainActor
-    func testRequestErrorScenarioShowsNonNormalStatus() throws {
+    func testRequestErrorScenarioShowsNonNormalStatus() {
         let app = makeApp(scenario: "requestError")
         app.launch()
 
@@ -261,7 +263,7 @@ final class NotEnoughResinsUITests: XCTestCase {
     }
 
     @MainActor
-    func testLaunchPerformance() throws {
+    func testLaunchPerformance() {
         measure(metrics: [XCTApplicationLaunchMetric()]) {
             makeApp().launch()
         }

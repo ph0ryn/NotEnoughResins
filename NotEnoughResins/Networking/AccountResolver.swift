@@ -18,13 +18,13 @@ enum AccountResolverError: Error, Equatable, LocalizedError {
             "The saved cookie does not include account_id_v2."
         case .authFailure:
             "HoYoLAB rejected the saved cookie. Please sign in again."
-        case .requestFailure(let message):
+        case let .requestFailure(message):
             message
         case .invalidResponse:
             "HoYoLAB returned a response that the app could not decode."
         case .genshinAccountNotFound:
             "No Genshin account was found for the saved HoYoLAB cookie."
-        case .transportFailure(let message):
+        case let .transportFailure(message):
             message
         }
     }
@@ -85,7 +85,7 @@ struct AccountResolver: AccountResolving {
                     nickname: entry.nickname,
                     level: entry.level
                 )
-            case 10001 where envelope.message == "Please login":
+            case 10_001 where envelope.message == "Please login":
                 throw AccountResolverError.authFailure
             default:
                 throw AccountResolverError.requestFailure(envelope.message)
@@ -122,7 +122,7 @@ struct AccountResolver: AccountResolving {
                 throw AccountResolverError.invalidResponse
             }
 
-            guard (200...299).contains(httpResponse.statusCode) else {
+            guard (200 ... 299).contains(httpResponse.statusCode) else {
                 throw AccountResolverError.requestFailure("HTTP \(httpResponse.statusCode)")
             }
 

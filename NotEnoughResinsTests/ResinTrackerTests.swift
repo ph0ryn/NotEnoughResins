@@ -1,6 +1,6 @@
 import Foundation
-import Testing
 @testable import NotEnoughResins
+import Testing
 
 struct ResinTrackerTests {
     private let tracker = ResinTracker()

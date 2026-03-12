@@ -1,6 +1,6 @@
 import Foundation
-import Testing
 @testable import NotEnoughResins
+import Testing
 
 struct AccountResolverTests {
     @Test
@@ -60,7 +60,7 @@ struct AccountResolverTests {
 
     @Test
     func rejectsCookieWithoutAccountID() async {
-        let resolver = AccountResolver(httpClient: MockHTTPClient { request in
+        let resolver = AccountResolver(httpClient: MockHTTPClient { _ in
             Issue.record("Unexpected request: \\(String(describing: request.url))")
             return (Data(), makeHTTPURLResponse(for: URL(string: "https://example.com")!))
         })

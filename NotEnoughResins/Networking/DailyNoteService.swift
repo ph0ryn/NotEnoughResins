@@ -14,11 +14,11 @@ enum DailyNoteServiceError: Error, Equatable, LocalizedError {
         switch self {
         case .authFailure:
             "HoYoLAB rejected the saved cookie. Please sign in again."
-        case .requestFailure(let message):
+        case let .requestFailure(message):
             message
         case .invalidResponse:
             "HoYoLAB returned a Daily Note response that the app could not decode."
-        case .transportFailure(let message):
+        case let .transportFailure(message):
             message
         }
     }
@@ -56,7 +56,8 @@ struct DailyNoteService: DailyNoteFetching {
             case 0:
                 guard let payload = envelope.data,
                       let resinRecoveryTimeSeconds = Int(payload.resinRecoveryTime),
-                      let homeCoinRecoveryTimeSeconds = Int(payload.homeCoinRecoveryTime) else {
+                      let homeCoinRecoveryTimeSeconds = Int(payload.homeCoinRecoveryTime)
+                else {
                     throw DailyNoteServiceError.invalidResponse
                 }
 
@@ -76,7 +77,7 @@ struct DailyNoteService: DailyNoteFetching {
                     currentExpeditionCount: payload.currentExpeditionNum,
                     maxExpeditionCount: payload.maxExpeditionNum
                 )
-            case 10001 where envelope.message == "Please login":
+            case 10_001 where envelope.message == "Please login":
                 throw DailyNoteServiceError.authFailure
             default:
                 throw DailyNoteServiceError.requestFailure(envelope.message)
@@ -113,7 +114,7 @@ struct DailyNoteService: DailyNoteFetching {
                 throw DailyNoteServiceError.invalidResponse
             }
 
-            guard (200...299).contains(httpResponse.statusCode) else {
+            guard (200 ... 299).contains(httpResponse.statusCode) else {
                 throw DailyNoteServiceError.requestFailure("HTTP \(httpResponse.statusCode)")
             }
 

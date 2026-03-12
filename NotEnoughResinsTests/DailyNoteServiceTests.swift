@@ -1,6 +1,6 @@
 import Foundation
-import Testing
 @testable import NotEnoughResins
+import Testing
 
 struct DailyNoteServiceTests {
     private let account = ResolvedAccount(

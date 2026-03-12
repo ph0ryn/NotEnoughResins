@@ -25,8 +25,7 @@ struct ResinTracker {
 
     nonisolated init() {}
 
-    nonisolated
-    func updateTrackingState(
+    nonisolated func updateTrackingState(
         with snapshot: DailyNoteSnapshot,
         previousState: ResinTrackingState
     ) -> ResinTrackingState {
@@ -63,8 +62,7 @@ struct ResinTracker {
         )
     }
 
-    nonisolated
-    func derivedState(
+    nonisolated func derivedState(
         from snapshot: DailyNoteSnapshot,
         trackingState: ResinTrackingState,
         now: Date
@@ -93,40 +91,38 @@ struct ResinTracker {
         )
     }
 
-    nonisolated
-    private func recoveredResin(since fetchedAt: Date, now: Date) -> Int {
+    private nonisolated func recoveredResin(since fetchedAt: Date, now: Date) -> Int {
         let elapsedSeconds = max(0, Int(now.timeIntervalSince(fetchedAt)))
         return elapsedSeconds / Self.recoveryIntervalSeconds
     }
 
-    nonisolated
-    private func validatedOverflowStartAt(
+    private nonisolated func validatedOverflowStartAt(
         predictedFullAt: Date?,
         fetchedAt: Date
     ) -> Date? {
-#if DEBUG
-        // Development builds pin overflow start to a fixed time yesterday so the
-        // overflow UI remains visible during local iteration without mutating
-        // live account data.
-        if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil {
-            var calendar = Calendar(identifier: .gregorian)
-            calendar.timeZone = .current
-            let yesterday = calendar.date(byAdding: .day, value: -1, to: fetchedAt)
-                ?? fetchedAt.addingTimeInterval(-86_400)
-            let yesterdayComponents = calendar.dateComponents([.year, .month, .day], from: yesterday)
+        #if DEBUG
+            // Development builds pin overflow start to a fixed time yesterday so the
+            // overflow UI remains visible during local iteration without mutating
+            // live account data.
+            if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil {
+                var calendar = Calendar(identifier: .gregorian)
+                calendar.timeZone = .current
+                let yesterday = calendar.date(byAdding: .day, value: -1, to: fetchedAt)
+                    ?? fetchedAt.addingTimeInterval(-86_400)
+                let yesterdayComponents = calendar.dateComponents([.year, .month, .day], from: yesterday)
 
-            return calendar.date(
-                from: DateComponents(
-                    year: yesterdayComponents.year,
-                    month: yesterdayComponents.month,
-                    day: yesterdayComponents.day,
-                    hour: 15,
-                    minute: 0,
-                    second: 0
-                )
-            ) ?? yesterday
-        }
-#endif
+                return calendar.date(
+                    from: DateComponents(
+                        year: yesterdayComponents.year,
+                        month: yesterdayComponents.month,
+                        day: yesterdayComponents.day,
+                        hour: 15,
+                        minute: 0,
+                        second: 0
+                    )
+                ) ?? yesterday
+            }
+        #endif
 
         guard let predictedFullAt, predictedFullAt <= fetchedAt else {
             return nil
@@ -135,8 +131,7 @@ struct ResinTracker {
         return predictedFullAt
     }
 
-    nonisolated
-    private func derivedWastedResin(
+    private nonisolated func derivedWastedResin(
         now: Date,
         overflowStartAt: Date,
         fallback: Int?

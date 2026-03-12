@@ -178,7 +178,8 @@ final class RefreshCoordinator: ObservableObject {
 
         do {
             guard let record = try snapshotStore.load(),
-                  record.accountIdV2 == accountIdV2 else {
+                  record.accountIdV2 == accountIdV2
+            else {
                 resolvedAccount = nil
                 latestSnapshot = nil
                 lastSuccessfulFetchAt = nil
