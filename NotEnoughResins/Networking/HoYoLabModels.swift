@@ -94,7 +94,7 @@ struct DailyNoteExpedition: Codable, Equatable {
     let status: String
     let remainedTimeSeconds: Int
 
-    var isComplete: Bool {
+    nonisolated var isComplete: Bool {
         status == "Finished" || remainedTimeSeconds <= 0
     }
 }

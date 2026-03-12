@@ -2,6 +2,20 @@
 
 ## 2026-03-13
 
+### Task 08 - Redesign AppPresentation and panel sections
+
+- Replaced the flat `AppPresentation.fields` list with a semantic panel model
+  built around a resin hero, an ordered summary-metrics block, and an optional
+  expedition section.
+- Extended Daily Note decoding and cached snapshot storage so expedition items
+  preserve per-character status and remaining time instead of collapsing to
+  counts only.
+- Rebuilt `ContentView` around the approved compact layout, keeping account
+  context in the header, overflow waste as a separate highlight, and
+  expedition rows visible as `Expeditions n/n`.
+- Updated presentation and UI coverage so the redesigned panel, expedition
+  detail rendering, and real menu bar panel opening continue to pass together.
+
 ### Planning - AppPresentation redesign
 
 - Added `doc/app-presentation-redesign.md` to define the follow-up redesign of

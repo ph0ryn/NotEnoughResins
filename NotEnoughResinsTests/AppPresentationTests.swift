@@ -18,7 +18,7 @@ struct AppPresentationTests {
 
         #expect(presentation.menuBarState == .needsConfiguration)
         #expect(presentation.title == "Configuration Needed")
-        #expect(presentation.fields.isEmpty)
+        #expect(presentation.panel == nil)
     }
 
     @Test
@@ -50,7 +50,12 @@ struct AppPresentationTests {
 
         #expect(presentation.menuBarState == .normal(current: 161, max: 200))
         #expect(presentation.title == "Daily Note Ready")
-        #expect(presentation.fields.contains(where: { $0.id == "resin" && $0.value == "161 / 200" }))
+        #expect(presentation.message == "Current account: Traveler on os_asia")
+        #expect(presentation.panel?.hero.value == "161 / 200")
+        #expect(presentation.panel?.summaryMetrics.map(\.id) == ["discounts", "tasks", "reward", "homeCoin"])
+        #expect(presentation.panel?.expeditionSection?.rows.count == 2)
+        #expect(presentation.panel?.expeditionSection?.rows[0].title == "Character A")
+        #expect(presentation.panel?.expeditionSection?.rows[0].value == "00:18 remaining")
     }
 
     @Test
@@ -76,7 +81,7 @@ struct AppPresentationTests {
 
         #expect(presentation.menuBarState == .overflow(wasted: 7))
         #expect(presentation.title == "Overflow Detected")
-        #expect(presentation.fields.contains(where: { $0.id == "waste" && $0.value == "7" }))
+        #expect(presentation.panel?.hero.accessory == .init(label: "Estimated Waste", value: "7"))
     }
 
     @Test
@@ -102,7 +107,7 @@ struct AppPresentationTests {
 
         #expect(presentation.menuBarState == .authError)
         #expect(presentation.title == "Authentication Failed")
-        #expect(presentation.fields.isEmpty == false)
+        #expect(presentation.panel != nil)
     }
 
     @Test
@@ -130,6 +135,38 @@ struct AppPresentationTests {
 
         #expect(presentation.menuBarState == .requestError)
         #expect(presentation.title == "Request Failed")
-        #expect(presentation.fields.isEmpty == false)
+        #expect(presentation.panel != nil)
+    }
+
+    @Test
+    func finishedExpeditionMapsToCompletedRow() {
+        let snapshot = makeDailyNoteSnapshot(
+            fetchedAt: Date(timeIntervalSince1970: 1_741_800_000),
+            currentResin: 150,
+            resinRecoveryTimeSeconds: 24_000,
+            expeditions: [
+                makeDailyNoteExpedition(
+                    avatarSideIcon: "https://example.com/Character_C.png",
+                    status: "Finished",
+                    remainedTimeSeconds: 0
+                ),
+            ]
+        )
+
+        let presentation = builder.makePresentation(
+            configurationState: .configurationReady,
+            refreshPhase: .ready,
+            resolvedAccount: nil,
+            latestSnapshot: snapshot,
+            derivedResinState: DerivedResinState(
+                currentResin: 150,
+                maxResin: 200,
+                wastedResin: nil
+            ),
+            lastSuccessfulFetchAt: snapshot.fetchedAt
+        )
+
+        #expect(presentation.panel?.expeditionSection?.rows[0].title == "Character C")
+        #expect(presentation.panel?.expeditionSection?.rows[0].value == "Completed")
     }
 }
