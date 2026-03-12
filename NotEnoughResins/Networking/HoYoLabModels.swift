@@ -75,7 +75,7 @@ struct DailyNotePayload: Decodable, Equatable {
     }
 }
 
-struct DailyNoteSnapshot: Equatable {
+struct DailyNoteSnapshot: Codable, Equatable {
     let fetchedAt: Date
     let currentResin: Int
     let maxResin: Int

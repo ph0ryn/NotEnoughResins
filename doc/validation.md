@@ -97,17 +97,41 @@ Executed coverage:
 - The current app shell now reflects discovery, refresh, ready, auth-error, and
   request-error phases from the shared state layer for local verification.
 
+### 2026-03-12 - Task 04 snapshot persistence and resin tracking verification
+
+- Command:
+  `xcodebuild test -scheme NotEnoughResins -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY=-`
+- Result: passed
+
+Executed coverage:
+
+- `SnapshotStoreTests` covered persisting and restoring the latest successful
+  Daily Note snapshot plus resin tracking markers, and rejecting corrupt cached
+  data.
+- `ResinTrackerTests` covered below-cap `predictedFullAt` updates, capped-state
+  overflow baseline derivation, refusing to invent waste without a reliable
+  baseline, derived resin capping, and continued waste growth from persisted
+  overflow timing after relaunch.
+- `RefreshCoordinatorTests` covered restoring a cached snapshot and tracking
+  state before the first refresh when the saved cookie matches the cached
+  account, ignoring cached state for a different account, and persisting each
+  successful refresh back to the snapshot store.
+- The current shell now renders derived resin and estimated waste from the
+  shared tracking state instead of showing only the last raw server snapshot.
+
 ## Requirement Coverage
 
 - FR-1, FR-2, FR-10: preferences and persistence checks.
 - FR-3, FR-4, FR-5, FR-11: startup discovery, scheduled fetch, and error state
   checks.
 - FR-6, FR-7, FR-8, FR-9: menu bar and main panel checks.
-- FR-12: resin tracking unit tests and manual boundary confirmation.
+- FR-12: resin tracking and snapshot persistence restore checks.
 
 ## Residual Gaps
 
-- Resin tracking, persistence across relaunch for snapshots, and final menu bar
-  UI checks are still pending execution in Tasks 04 through 06.
+- A separate manual walkthrough for the task04 relaunch boundary scenario was
+  not executed after the automated coverage landed.
+- Final menu bar and main-panel UI checks are still pending execution in Tasks
+  05 and 06.
 - No CI status was checked because the repository does not yet expose remote CI
   to this workflow.

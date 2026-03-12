@@ -11,6 +11,8 @@ struct ContentView: View {
     @EnvironmentObject private var appState: AppState
 
     var body: some View {
+        let derivedResinState = appState.derivedResinState()
+
         VStack(alignment: .leading, spacing: 16) {
             Text("NotEnoughResins")
                 .font(.title2.weight(.semibold))
@@ -22,9 +24,15 @@ struct ContentView: View {
             Text(statusMessage)
                 .foregroundStyle(.secondary)
 
-            if let snapshot = appState.latestSnapshot {
+            if let snapshot = appState.latestSnapshot,
+               let derivedResinState {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Current Resin: \(snapshot.currentResin) / \(snapshot.maxResin)")
+                    Text("Current Resin: \(derivedResinState.currentResin) / \(derivedResinState.maxResin)")
+
+                    if let wastedResin = derivedResinState.wastedResin {
+                        Text("Estimated Waste: \(wastedResin)")
+                    }
+
                     Text("Last Update: \(snapshot.fetchedAt.formatted(date: .abbreviated, time: .shortened))")
                 }
                 .font(.callout)
