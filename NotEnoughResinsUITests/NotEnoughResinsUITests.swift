@@ -10,14 +10,18 @@ import XCTest
 final class NotEnoughResinsUITests: XCTestCase {
     private func makeApp(
         scenario: String? = nil,
+        showsDebugWindow: Bool = true,
         keychainServiceSuffix: String = UUID().uuidString,
         userDefaultsSuiteSuffix: String = UUID().uuidString
     ) -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchEnvironment["NOT_ENOUGH_RESINS_UI_TEST_WINDOW"] = "1"
         app.launchEnvironment["NOT_ENOUGH_RESINS_DISABLE_REFRESH"] = "1"
         app.launchEnvironment["NOT_ENOUGH_RESINS_KEYCHAIN_SERVICE_SUFFIX"] = keychainServiceSuffix
         app.launchEnvironment["NOT_ENOUGH_RESINS_USER_DEFAULTS_SUFFIX"] = userDefaultsSuiteSuffix
+
+        if showsDebugWindow {
+            app.launchEnvironment["NOT_ENOUGH_RESINS_UI_TEST_WINDOW"] = "1"
+        }
 
         if let scenario {
             app.launchEnvironment["NOT_ENOUGH_RESINS_UI_TEST_SCENARIO"] = scenario
@@ -39,6 +43,10 @@ final class NotEnoughResinsUITests: XCTestCase {
 
     private func element(in app: XCUIApplication, id: String) -> XCUIElement {
         app.windows["NotEnoughResins Debug"].descendants(matching: .any)[id]
+    }
+
+    private func menuBarStatusItem(in app: XCUIApplication) -> XCUIElement {
+        app.menuBars.descendants(matching: .any)["menuBar.statusLabel"]
     }
 
     override func setUpWithError() throws {
@@ -71,6 +79,33 @@ final class NotEnoughResinsUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Configuration Needed"].waitForExistence(timeout: 2))
         XCTAssertTrue(element(in: app, id: "content.openPreferences").exists)
         XCTAssertTrue(element(in: app, id: "content.quit").exists)
+    }
+
+    @MainActor
+    func testMenuBarStatusItemOpensPanel() throws {
+        let app = makeApp(scenario: "needsConfiguration", showsDebugWindow: false)
+        app.launch()
+
+        let statusItem = menuBarStatusItem(in: app)
+        XCTAssertTrue(statusItem.waitForExistence(timeout: 2))
+
+        statusItem.click()
+
+        XCTAssertTrue(app.staticTexts["Configuration Needed"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.buttons["content.quit"].exists)
+    }
+
+    @MainActor
+    func testMenuBarStatusItemOpensOverflowPanel() throws {
+        let app = makeApp(scenario: "overflow", showsDebugWindow: false)
+        app.launch()
+
+        let statusItem = menuBarStatusItem(in: app)
+        XCTAssertTrue(statusItem.waitForExistence(timeout: 2))
+
+        statusItem.click()
+
+        XCTAssertTrue(app.staticTexts["Overflow Detected"].waitForExistence(timeout: 2))
     }
 
     @MainActor

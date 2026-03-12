@@ -134,6 +134,9 @@ Executed coverage:
   overflow, auth-error, and request-error UI scenarios through a debug host
   window that renders the same menu bar label view and main panel content used
   by the `MenuBarExtra`.
+- `NotEnoughResinsUITests` also exercised the real macOS menu bar status item
+  itself, confirming that clicking the setup-needed and overflow states opens
+  the expected panel content.
 - The state-driven UI checks verified compact menu bar label rendering, the
   top-level panel state titles for each scenario, and the setup-needed panel's
   Preferences and Quit actions without requiring a standard launch window.

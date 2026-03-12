@@ -58,5 +58,6 @@
 - Rebuilt the main panel as a compact Daily Note summary with last successful
   refresh time plus Preferences and Quit actions, and added a debug UI-test
   host for deterministic state-driven verification.
-- Extended automated coverage for menu bar and panel presentation states, then
-  recorded the executed verification in `doc/validation.md`.
+- Extended automated coverage for menu bar and panel presentation states,
+  including real menu bar status-item click smoke tests, then recorded the
+  executed verification in `doc/validation.md`.
