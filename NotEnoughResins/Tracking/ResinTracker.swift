@@ -23,8 +23,6 @@ struct DerivedResinState: Equatable {
 struct ResinTracker {
     nonisolated static let recoveryIntervalSeconds = 480
 
-    nonisolated init() {}
-
     nonisolated func updateTrackingState(
         with snapshot: DailyNoteSnapshot,
         previousState: ResinTrackingState

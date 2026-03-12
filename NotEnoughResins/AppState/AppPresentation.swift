@@ -25,8 +25,6 @@ struct AppPresentation: Equatable {
 }
 
 struct AppPresentationBuilder {
-    nonisolated init() {}
-
     nonisolated func makePresentation(
         configurationState: PreferencesStore.ConfigurationState,
         refreshPhase: RefreshCoordinator.Phase,
