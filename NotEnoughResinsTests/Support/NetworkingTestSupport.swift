@@ -17,34 +17,6 @@ final class MockHTTPClient: HTTPDataLoading {
     }
 }
 
-final class InMemorySnapshotStore: SnapshotStoring {
-    var storedRecord: SnapshotStoreRecord?
-    var loadError: Error?
-    var saveError: Error?
-    private(set) var savedRecords: [SnapshotStoreRecord] = []
-
-    func load() throws -> SnapshotStoreRecord? {
-        if let loadError {
-            throw loadError
-        }
-
-        return storedRecord
-    }
-
-    func save(_ record: SnapshotStoreRecord) throws {
-        if let saveError {
-            throw saveError
-        }
-
-        storedRecord = record
-        savedRecords.append(record)
-    }
-
-    func clear() throws {
-        storedRecord = nil
-    }
-}
-
 @MainActor
 final class ManualRefreshClock: RefreshClock {
     private struct PendingSleep {

@@ -40,7 +40,6 @@ final class RefreshCoordinator: ObservableObject {
 
     private let accountResolver: any AccountResolving
     private let dailyNoteService: any DailyNoteFetching
-    private let snapshotStore: any SnapshotStoring
     private let resinTracker: ResinTracker
     private let clock: RefreshClock
     private var refreshTask: Task<Void, Never>?
@@ -48,13 +47,11 @@ final class RefreshCoordinator: ObservableObject {
     init(
         accountResolver: any AccountResolving,
         dailyNoteService: any DailyNoteFetching,
-        snapshotStore: any SnapshotStoring,
         resinTracker: ResinTracker = ResinTracker(),
         clock: RefreshClock = SystemRefreshClock()
     ) {
         self.accountResolver = accountResolver
         self.dailyNoteService = dailyNoteService
-        self.snapshotStore = snapshotStore
         self.resinTracker = resinTracker
         self.clock = clock
     }
@@ -67,14 +64,13 @@ final class RefreshCoordinator: ObservableObject {
         RefreshCoordinator(
             accountResolver: AccountResolver(httpClient: httpClient),
             dailyNoteService: DailyNoteService(httpClient: httpClient),
-            snapshotStore: SnapshotStore.live()
+            resinTracker: ResinTracker()
         )
     }
 
     func start(cookie: String?) {
         beginRefreshLoop(
             cookie: cookie,
-            restoreCachedState: true,
             preferResolvedAccount: false
         )
     }
@@ -82,14 +78,12 @@ final class RefreshCoordinator: ObservableObject {
     func refreshNow(cookie: String?) {
         beginRefreshLoop(
             cookie: cookie,
-            restoreCachedState: false,
             preferResolvedAccount: true
         )
     }
 
     private func beginRefreshLoop(
         cookie: String?,
-        restoreCachedState: Bool,
         preferResolvedAccount: Bool
     ) {
         refreshTask?.cancel()
@@ -97,10 +91,6 @@ final class RefreshCoordinator: ObservableObject {
         guard let cookie else {
             applyNeedsConfigurationState()
             return
-        }
-
-        if restoreCachedState {
-            restorePersistedState(for: cookie)
         }
 
         refreshTask = Task { [weak self] in
@@ -172,13 +162,6 @@ final class RefreshCoordinator: ObservableObject {
         )
         latestSnapshot = snapshot
         lastSuccessfulFetchAt = snapshot.fetchedAt
-        try? snapshotStore.save(
-            SnapshotStoreRecord(
-                accountIdV2: account.accountIdV2,
-                snapshot: snapshot,
-                trackingState: trackingState
-            )
-        )
         phase = .ready
     }
 
@@ -218,37 +201,5 @@ final class RefreshCoordinator: ObservableObject {
         latestSnapshot = nil
         lastSuccessfulFetchAt = nil
         trackingState = .empty
-    }
-
-    private func restorePersistedState(for cookie: String) {
-        guard let accountIdV2 = CookieParser.accountIDV2(from: cookie) else {
-            resolvedAccount = nil
-            latestSnapshot = nil
-            lastSuccessfulFetchAt = nil
-            trackingState = .empty
-            return
-        }
-
-        do {
-            guard let record = try snapshotStore.load(),
-                  record.accountIdV2 == accountIdV2
-            else {
-                resolvedAccount = nil
-                latestSnapshot = nil
-                lastSuccessfulFetchAt = nil
-                trackingState = .empty
-                return
-            }
-
-            resolvedAccount = nil
-            latestSnapshot = record.snapshot
-            lastSuccessfulFetchAt = record.snapshot.fetchedAt
-            trackingState = record.trackingState
-        } catch {
-            resolvedAccount = nil
-            latestSnapshot = nil
-            lastSuccessfulFetchAt = nil
-            trackingState = .empty
-        }
     }
 }

@@ -31,6 +31,19 @@
 
 ## Executed Checks
 
+### 2026-03-13 - One-shot keep Daily Note state in memory only
+
+- Command:
+  `xcodebuild test -scheme NotEnoughResins -destination 'platform=macOS' -skip-testing:NotEnoughResinsUITests CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY=-`
+- Result: passed
+
+Executed coverage:
+
+- Removed snapshot save and restore behavior from `RefreshCoordinator`, so
+  relaunch no longer reuses stale Daily Note or overflow-tracking state.
+- Added coordinator coverage that verifies clearing the cookie also clears the
+  in-memory snapshot, last fetch timestamp, and tracking state.
+
 ### 2026-03-13 - One-shot remove debug overflow-start override
 
 - Command:

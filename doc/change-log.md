@@ -2,6 +2,15 @@
 
 ## 2026-03-13
 
+### One-shot - Keep Daily Note state in memory only
+
+- Removed snapshot save and restore behavior from `RefreshCoordinator` so Daily
+  Note snapshots and resin tracking state are no longer persisted across app
+  launches.
+- Kept configuration persistence unchanged, and updated startup behavior so
+  each app session derives overflow state only from data observed while the app
+  is running.
+
 ### One-shot - Remove debug overflow-start override
 
 - Removed the temporary DEBUG-only overflow-start override from

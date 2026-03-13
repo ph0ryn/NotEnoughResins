@@ -94,7 +94,7 @@ struct AppPresentationBuilder {
                     return AppPresentation(
                         menuBarState: menuBarState,
                         title: "Configuration Ready",
-                        message: "A HoYoLAB cookie is stored and the latest cached Daily Note snapshot is ready.",
+                        message: "A HoYoLAB cookie is stored and the latest Daily Note snapshot is ready.",
                         symbolName: symbolName(for: menuBarState),
                         lastRefreshText: lastRefreshText,
                         panel: panel

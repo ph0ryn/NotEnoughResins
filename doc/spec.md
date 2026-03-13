@@ -3,7 +3,7 @@
 ## Document Status
 
 - Status: Draft
-- Last updated: 2026-03-11
+- Last updated: 2026-03-13
 - Source draft: `temp-spec.md`
 
 ## Background
@@ -32,8 +32,9 @@ Version 1 includes the following:
   configuration or authentication.
 - A main panel that shows formatted Daily Note data and exposes Preferences and
   Quit actions.
-- Local persistence for configuration and cached resin tracking state across
-  launches.
+- Local persistence for configuration only.
+- Daily Note snapshots and resin tracking state kept in memory for the current
+  app session only.
 
 ## Non-Scope
 
@@ -171,9 +172,10 @@ application shall not start Daily Note polling.
 
 ### FR-12 Resin Waste Tracking
 
-The application shall compare the latest successful snapshot against cached
-tracking data to estimate when natural recovery first reached the cap and how
-much resin has been wasted since that time.
+The application shall compare the latest successful snapshot against in-memory
+tracking data collected during the current app session to estimate when natural
+recovery first reached the cap and how much resin has been wasted since that
+time.
 
 If the application does not have enough prior state to calculate a reliable
 overflow start time, it shall avoid showing a fabricated waste count.
@@ -236,7 +238,8 @@ required baseline is missing.
   separately instead of only an aggregate expedition count.
 - Resin waste is only shown when the application has enough data to support the
   estimate.
-- Configuration and tracking state survive application relaunch.
+- Configuration survives application relaunch.
+- Resin tracking restarts from fresh app-session data after relaunch.
 
 ## Unresolved Items
 

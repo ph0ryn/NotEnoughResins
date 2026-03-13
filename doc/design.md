@@ -3,7 +3,7 @@
 ## Document Status
 
 - Status: Draft
-- Last updated: 2026-03-11
+- Last updated: 2026-03-13
 - Related requirements: `doc/spec.md`
 
 ## Current Baseline
@@ -20,9 +20,10 @@ The design below defines the first implementation shape for version 1.
 
 - Deliver the primary workflow from the menu bar instead of a normal document
   window.
-- Separate API access, persistence, and derived resin tracking so the logic is
-  unit-testable.
-- Preserve enough cached state to estimate overflow waste across app relaunches.
+- Separate API access, secure configuration persistence, and derived resin
+  tracking so the logic is unit-testable.
+- Keep Daily Note snapshots and overflow tracking in memory only so relaunches
+  never present stale server-derived state as current.
 - Keep version 1 limited to a single configured account.
 
 ## Requirement Mapping
@@ -31,7 +32,7 @@ The design below defines the first implementation shape for version 1.
 - FR-3, FR-4, FR-5, FR-11: account resolver, `DailyNoteService`, and scheduled
   refresh coordinator.
 - FR-6, FR-7, FR-8, FR-9: menu bar scene and main panel view model.
-- FR-12: `ResinTracker` and cached snapshot store.
+- FR-12: `ResinTracker` within the current app session.
 
 ## Architecture
 
@@ -102,15 +103,6 @@ Polling rule:
 - The periodic loop refreshes Daily Note only.
 - The game record card request is not repeated during the normal polling loop.
 
-#### `SnapshotStore`
-
-Responsibilities:
-
-- Persist the latest successful Daily Note snapshot.
-- Persist timestamps and derived tracking markers needed for overflow
-  calculation.
-- Restore tracking state on launch.
-
 #### `ResinTracker`
 
 Responsibilities:
@@ -125,7 +117,8 @@ Responsibilities:
 Responsibilities:
 
 - Hold the current load state for the UI.
-- Combine preferences, network state, cached snapshot, and derived resin state.
+- Combine preferences, network state, the latest in-memory snapshot, and
+  derived resin state.
 - Expose view-friendly status for the menu bar and main panel.
 
 ## Data Model
@@ -149,23 +142,6 @@ Suggested persisted structures:
 
 - `AccountConfiguration`
   - no user-editable fields beyond the stored cookie reference
-- `ResolvedAccount`
-  - `accountIdV2: String`
-  - `gameId: Int`
-  - `server: String`
-  - `roleId: String`
-  - optional display metadata from the game card response
-- `CachedDailyNoteSnapshot`
-  - `fetchedAt: Date`
-  - `currentResin: Int`
-  - `maxResin: Int`
-  - `resinRecoveryTimeSeconds: Int`
-  - selected main-panel fields
-- `ResinTrackingState`
-  - `lastBelowCapSnapshotAt: Date?`
-  - `predictedFullAt: Date?`
-  - `overflowStartAt: Date?`
-  - `lastKnownWastedResin: Int?`
 
 ## API Integration Flow
 
@@ -218,7 +194,8 @@ On each successful fetch where `currentResin < maxResin`:
 1. Parse `resinRecoveryTime` into seconds.
 2. Compute `predictedFullAt = fetchedAt + resinRecoveryTime`.
 3. Clear any stale overflow-only display state.
-4. Persist the new snapshot and tracking markers.
+4. Keep the new snapshot and tracking markers in memory for the current app
+   session.
 
 ### Entering or Remaining in Capped State
 
@@ -309,15 +286,15 @@ The UI should validate presence before enabling save or refresh.
 
 - Store the cookie in Keychain rather than plain text user defaults.
 - Avoid logging full cookie values.
-- Treat resolved account metadata as non-sensitive cached data.
+- Treat resolved account metadata as non-sensitive session data.
 
 ## Performance and Operational Considerations
 
 - A 10-minute polling interval keeps network usage low for version 1.
 - Local derivation reduces the need for frequent fetches while keeping the menu
   bar useful.
-- The tracking logic must survive app relaunch without resetting a known
-  overflow start unnecessarily.
+- The tracking logic resets on relaunch and shall avoid inventing overflow
+  history until the current app session has enough baseline data.
 
 ## Alternatives Considered
 
