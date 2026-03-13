@@ -72,29 +72,54 @@ final class RefreshCoordinator: ObservableObject {
     }
 
     func start(cookie: String?) {
+        beginRefreshLoop(
+            cookie: cookie,
+            restoreCachedState: true,
+            preferResolvedAccount: false
+        )
+    }
+
+    func refreshNow(cookie: String?) {
+        beginRefreshLoop(
+            cookie: cookie,
+            restoreCachedState: false,
+            preferResolvedAccount: true
+        )
+    }
+
+    private func beginRefreshLoop(
+        cookie: String?,
+        restoreCachedState: Bool,
+        preferResolvedAccount: Bool
+    ) {
         refreshTask?.cancel()
 
         guard let cookie else {
-            phase = .needsConfiguration
-            resolvedAccount = nil
-            latestSnapshot = nil
-            lastSuccessfulFetchAt = nil
-            trackingState = .empty
+            applyNeedsConfigurationState()
             return
         }
 
-        restorePersistedState(for: cookie)
-        phase = .discoveringAccount
+        if restoreCachedState {
+            restorePersistedState(for: cookie)
+        }
 
         refreshTask = Task { [weak self] in
-            await self?.runRefreshLoop(cookie: cookie)
+            await self?.runRefreshLoop(
+                cookie: cookie,
+                preferResolvedAccount: preferResolvedAccount
+            )
         }
     }
 
-    private func runRefreshLoop(cookie: String) async {
+    private func runRefreshLoop(
+        cookie: String,
+        preferResolvedAccount: Bool
+    ) async {
         do {
-            let account = try await accountResolver.resolveAccount(from: cookie)
-            resolvedAccount = account
+            let account = try await resolveAccount(
+                from: cookie,
+                preferResolvedAccount: preferResolvedAccount
+            )
             phase = .refreshingDailyNote
             try await refreshOnce(cookie: cookie, account: account)
 
@@ -113,6 +138,26 @@ final class RefreshCoordinator: ObservableObject {
         } catch {
             phase = .requestError(error.localizedDescription)
         }
+    }
+
+    private func resolveAccount(
+        from cookie: String,
+        preferResolvedAccount: Bool
+    ) async throws -> ResolvedAccount {
+        let cookieAccountID = CookieParser.accountIDV2(from: cookie)
+
+        if preferResolvedAccount,
+           let resolvedAccount,
+           resolvedAccount.accountIdV2 == cookieAccountID
+        {
+            return resolvedAccount
+        }
+
+        phase = .discoveringAccount
+
+        let account = try await accountResolver.resolveAccount(from: cookie)
+        resolvedAccount = account
+        return account
     }
 
     private func refreshOnce(cookie: String, account: ResolvedAccount) async throws {
@@ -165,6 +210,14 @@ final class RefreshCoordinator: ObservableObject {
         default:
             phase = .requestError(dailyNoteServiceError.localizedDescription)
         }
+    }
+
+    private func applyNeedsConfigurationState() {
+        phase = .needsConfiguration
+        resolvedAccount = nil
+        latestSnapshot = nil
+        lastSuccessfulFetchAt = nil
+        trackingState = .empty
     }
 
     private func restorePersistedState(for cookie: String) {

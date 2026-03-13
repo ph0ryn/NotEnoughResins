@@ -96,6 +96,39 @@ final class AppState: ObservableObject {
         return refreshCoordinator.derivedResinState(at: date)
     }
 
+    func refreshNow() {
+        guard configurationState == .configurationReady else {
+            return
+        }
+
+        if case .discoveringAccount = refreshPhase {
+            return
+        }
+
+        if case .refreshingDailyNote = refreshPhase {
+            return
+        }
+
+        guard refreshEnabled else {
+            return
+        }
+
+        refreshCoordinator.refreshNow(cookie: preferencesStore.cookie)
+    }
+
+    var canRefreshNow: Bool {
+        guard configurationState == .configurationReady else {
+            return false
+        }
+
+        switch refreshPhase {
+        case .discoveringAccount, .refreshingDailyNote:
+            return false
+        default:
+            return true
+        }
+    }
+
     var presentation: AppPresentation {
         presentationBuilder.makePresentation(
             configurationState: configurationState,

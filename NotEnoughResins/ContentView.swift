@@ -67,6 +67,18 @@ struct ContentView: View {
                 Spacer()
 
                 Button {
+                    appState.refreshNow()
+                } label: {
+                    Label("Refresh", systemImage: "arrow.clockwise")
+                        .labelStyle(.iconOnly)
+                }
+                .accessibilityLabel("Refresh")
+                .accessibilityIdentifier("content.refresh")
+                .help("Refresh")
+                .buttonStyle(.borderless)
+                .disabled(appState.canRefreshNow == false)
+
+                Button {
                     NSApplication.shared.terminate(nil)
                 } label: {
                     Label("Quit", systemImage: "power")

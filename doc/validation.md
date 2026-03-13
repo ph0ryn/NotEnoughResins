@@ -239,6 +239,24 @@ Executed coverage:
   redesign did not regress configuration, refresh, persistence, or overflow
   behavior outside the presentation layer.
 
+### 2026-03-13 - One-shot footer refresh action verification
+
+- Command:
+  `xcodebuild test -scheme NotEnoughResins -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY=-`
+- Result: passed
+
+Executed coverage:
+
+- `RefreshCoordinatorTests` now verifies that a footer-triggered manual
+  refresh reuses the already resolved account and performs an immediate Daily
+  Note fetch instead of waiting for the next 10-minute interval.
+- `NotEnoughResinsUITests` now verifies that the main-panel footer exposes a
+  refresh icon button alongside Preferences and Quit in both the debug host
+  window and the real menu bar panel smoke path.
+- The test support clock now cancels pending sleep continuations safely when a
+  manual refresh restarts the polling loop, so the new coordinator coverage can
+  exercise restart behavior without leaking suspended waits.
+
 ## Requirement Coverage
 
 - FR-1, FR-2, FR-10: preferences and persistence checks.
