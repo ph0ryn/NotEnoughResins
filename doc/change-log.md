@@ -2,6 +2,14 @@
 
 ## 2026-03-13
 
+### One-shot - Remove debug overflow-start override
+
+- Removed the temporary DEBUG-only overflow-start override from
+  `ResinTracker`.
+- Local and automated runs now follow the same prediction-based overflow
+  baseline derivation path, so development behavior matches the documented
+  tracking rules again.
+
 ### One-shot - Add footer refresh button
 
 - Added an icon-only refresh button to the main-panel footer between

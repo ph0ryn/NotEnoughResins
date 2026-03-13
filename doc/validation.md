@@ -31,6 +31,19 @@
 
 ## Executed Checks
 
+### 2026-03-13 - One-shot remove debug overflow-start override
+
+- Command:
+  `xcodebuild test -scheme NotEnoughResins -destination 'platform=macOS' -skip-testing:NotEnoughResinsUITests CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY=-`
+- Result: passed
+
+Executed coverage:
+
+- Removed the DEBUG-only local-development overflow baseline override from
+  `ResinTracker`.
+- Confirmed the existing unit coverage still exercises the documented
+  prediction-based overflow derivation path without a development-only branch.
+
 ### 2026-03-12 - Task 01 live API investigation
 
 - Input source: `HOYOLAB_COOKIE` from the local environment
