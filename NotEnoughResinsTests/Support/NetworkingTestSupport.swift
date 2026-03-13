@@ -47,9 +47,14 @@ final class InMemorySnapshotStore: SnapshotStoring {
 
 @MainActor
 final class ManualRefreshClock: RefreshClock {
+    private struct PendingSleep {
+        let id: UUID
+        let continuation: CheckedContinuation<Void, Error>
+    }
+
     var now: Date
     private(set) var sleepCalls: [TimeInterval] = []
-    private var continuations: [CheckedContinuation<Void, Error>] = []
+    private var pendingSleeps: [PendingSleep] = []
 
     init(now: Date) {
         self.now = now
@@ -57,8 +62,18 @@ final class ManualRefreshClock: RefreshClock {
 
     func sleep(seconds: TimeInterval) async throws {
         sleepCalls.append(seconds)
-        try await withCheckedThrowingContinuation { continuation in
-            continuations.append(continuation)
+        let sleepID = UUID()
+
+        try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { continuation in
+                pendingSleeps.append(
+                    PendingSleep(id: sleepID, continuation: continuation)
+                )
+            }
+        } onCancel: {
+            Task { @MainActor [weak self] in
+                self?.cancelSleep(id: sleepID)
+            }
         }
     }
 
@@ -70,12 +85,21 @@ final class ManualRefreshClock: RefreshClock {
 
     func advance(by seconds: TimeInterval) {
         now = now.addingTimeInterval(seconds)
-        guard continuations.isEmpty == false else {
+        guard pendingSleeps.isEmpty == false else {
             return
         }
 
-        let continuation = continuations.removeFirst()
-        continuation.resume()
+        let pendingSleep = pendingSleeps.removeFirst()
+        pendingSleep.continuation.resume()
+    }
+
+    private func cancelSleep(id: UUID) {
+        guard let index = pendingSleeps.firstIndex(where: { $0.id == id }) else {
+            return
+        }
+
+        let pendingSleep = pendingSleeps.remove(at: index)
+        pendingSleep.continuation.resume(throwing: CancellationError())
     }
 }
 

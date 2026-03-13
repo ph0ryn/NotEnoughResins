@@ -136,4 +136,56 @@ struct RefreshCoordinatorTests {
         #expect(coordinator.latestSnapshot == nil)
         #expect(coordinator.trackingState == .empty)
     }
+
+    @Test
+    func manualRefreshReusesResolvedAccountAndRefreshesImmediately() async {
+        let initialFetchAt = Date(timeIntervalSince1970: 1_741_600_000)
+        let clock = ManualRefreshClock(now: initialFetchAt)
+        let account = ResolvedAccount(
+            accountIdV2: "12345",
+            server: "os_asia",
+            roleId: "987654321",
+            nickname: "Traveler",
+            level: 60
+        )
+        let snapshots = [
+            makeDailyNoteSnapshot(
+                fetchedAt: initialFetchAt,
+                currentResin: 150,
+                resinRecoveryTimeSeconds: 24_000
+            ),
+            makeDailyNoteSnapshot(
+                fetchedAt: initialFetchAt.addingTimeInterval(30),
+                currentResin: 151,
+                resinRecoveryTimeSeconds: 23_520
+            ),
+        ]
+
+        let accountResolver = MockAccountResolver(result: .success(account))
+        let dailyNoteService = MockDailyNoteService(results: snapshots.map(Result.success))
+        let coordinator = RefreshCoordinator(
+            accountResolver: accountResolver,
+            dailyNoteService: dailyNoteService,
+            snapshotStore: InMemorySnapshotStore(),
+            clock: clock
+        )
+
+        coordinator.start(cookie: "account_id_v2=12345; cookie_token_v2=abcdef")
+
+        await clock.waitForSleepCall(count: 1)
+        #expect(coordinator.latestSnapshot?.currentResin == 150)
+        #expect(accountResolver.cookies.count == 1)
+        #expect(dailyNoteService.requests.count == 1)
+
+        clock.now = initialFetchAt.addingTimeInterval(30)
+        coordinator.refreshNow(cookie: "account_id_v2=12345; cookie_token_v2=abcdef")
+
+        await clock.waitForSleepCall(count: 2)
+
+        #expect(accountResolver.cookies.count == 1)
+        #expect(dailyNoteService.requests.count == 2)
+        #expect(coordinator.phase == .ready)
+        #expect(coordinator.latestSnapshot?.currentResin == 151)
+        #expect(coordinator.lastSuccessfulFetchAt == initialFetchAt.addingTimeInterval(30))
+    }
 }

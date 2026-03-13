@@ -2,6 +2,16 @@
 
 ## 2026-03-13
 
+### One-shot - Add footer refresh button
+
+- Added an icon-only refresh button to the main-panel footer between
+  Preferences and Quit.
+- Routed the footer action through `AppState` and `RefreshCoordinator` so a
+  manual refresh triggers an immediate Daily Note fetch without waiting for the
+  next scheduled poll when the current account is already resolved.
+- Extended automated coverage for the new footer control and the immediate
+  refresh path, including safe cancellation of the test clock's pending sleep.
+
 ### Task 08 - Redesign AppPresentation and panel sections
 
 - Replaced the flat `AppPresentation.fields` list with a semantic panel model

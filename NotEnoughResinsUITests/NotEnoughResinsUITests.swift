@@ -139,6 +139,14 @@ final class NotEnoughResinsUITests: XCTestCase {
             return
         }
 
+        guard let refreshButton = waitForAnyElement(
+            panelElementCandidates(in: app, id: "content.refresh"),
+            timeout: 2
+        ) else {
+            XCTFail("Refresh button did not appear.", file: file, line: line)
+            return
+        }
+
         XCTAssertTrue(openPreferences.isHittable, file: file, line: line)
         XCTAssertTrue(quitButton.isHittable, file: file, line: line)
     }
@@ -172,6 +180,7 @@ final class NotEnoughResinsUITests: XCTestCase {
         assertMenuBarStatusLabel(in: app, equals: "Set Up")
         XCTAssertTrue(app.staticTexts["Configuration Needed"].waitForExistence(timeout: 2))
         XCTAssertTrue(element(in: app, id: "content.openPreferences").exists)
+        XCTAssertTrue(element(in: app, id: "content.refresh").exists)
         XCTAssertTrue(element(in: app, id: "content.quit").exists)
     }
 
@@ -237,6 +246,7 @@ final class NotEnoughResinsUITests: XCTestCase {
 
         assertMenuBarStatusLabel(in: app, equals: "160 / 200")
         XCTAssertTrue(element(in: app, id: "content.hero.value").waitForExistence(timeout: 2))
+        XCTAssertTrue(element(in: app, id: "content.refresh").exists)
         XCTAssertTrue(app.staticTexts["Discount Runs"].waitForExistence(timeout: 2))
         XCTAssertTrue(app.staticTexts["Expeditions 3/5"].waitForExistence(timeout: 2))
         XCTAssertTrue(app.staticTexts["00:18 remaining"].waitForExistence(timeout: 2))
