@@ -16,43 +16,41 @@ struct ContentView: View {
         let presentation = appState.presentation
 
         VStack(spacing: 0) {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    HStack(alignment: .top, spacing: 12) {
-                        Image(systemName: presentation.symbolName)
-                            .font(.system(size: 20, weight: .semibold))
-                            .symbolRenderingMode(.hierarchical)
-                            .foregroundStyle(accentColor)
+            VStack(alignment: .leading, spacing: 16) {
+                HStack(alignment: .top, spacing: 12) {
+                    Image(systemName: presentation.symbolName)
+                        .font(.system(size: 20, weight: .semibold))
+                        .symbolRenderingMode(.hierarchical)
+                        .foregroundStyle(accentColor)
 
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(presentation.title)
-                                .font(.title3.weight(.semibold))
-                            Text(presentation.message)
-                                .font(.callout)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                    .accessibilityIdentifier("content.statusHeader")
-
-                    if let lastRefreshText = presentation.lastRefreshText {
-                        Label("Last Successful Refresh: \(lastRefreshText)", systemImage: "clock")
-                            .font(.caption)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(presentation.title)
+                            .font(.title3.weight(.semibold))
+                        Text(presentation.message)
+                            .font(.callout)
                             .foregroundStyle(.secondary)
-                            .accessibilityElement(children: .ignore)
-                            .accessibilityLabel("Last Successful Refresh: \(lastRefreshText)")
-                            .accessibilityIdentifier("content.lastRefresh")
-                    }
-
-                    if let panel = presentation.panel {
-                        panelView(panel)
-                            .accessibilityIdentifier("content.panel")
                     }
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 18)
-                .padding(.top, 18)
-                .padding(.bottom, 10)
+                .accessibilityIdentifier("content.statusHeader")
+
+                if let lastRefreshText = presentation.lastRefreshText {
+                    Label("Last Successful Refresh: \(lastRefreshText)", systemImage: "clock")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .accessibilityElement(children: .ignore)
+                        .accessibilityLabel("Last Successful Refresh: \(lastRefreshText)")
+                        .accessibilityIdentifier("content.lastRefresh")
+                }
+
+                if let panel = presentation.panel {
+                    panelView(panel)
+                        .accessibilityIdentifier("content.panel")
+                }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 18)
+            .padding(.top, 18)
+            .padding(.bottom, 10)
 
             Divider()
 
@@ -79,6 +77,7 @@ struct ContentView: View {
             .padding(.horizontal, 18)
             .padding(.vertical, 10)
         }
+        .fixedSize(horizontal: false, vertical: true)
         .frame(
             minWidth: 340,
             idealWidth: 360,
