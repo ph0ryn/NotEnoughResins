@@ -29,7 +29,8 @@ struct AppPresentation: Equatable {
 
     struct ExpeditionRow: Equatable, Identifiable {
         let id: String
-        let title: String
+        let avatarURL: URL?
+        let characterLabel: String
         let value: String
         let isComplete: Bool
     }
@@ -221,7 +222,8 @@ struct AppPresentationBuilder {
         let expeditionRows = latestSnapshot.expeditions.enumerated().map { index, expedition in
             AppPresentation.ExpeditionRow(
                 id: "character-\(index + 1)",
-                title: expeditionTitle(for: expedition, index: index),
+                avatarURL: URL(string: expedition.avatarSideIcon),
+                characterLabel: expeditionCharacterLabel(for: expedition, index: index),
                 value: expeditionValue(for: expedition),
                 isComplete: expedition.isComplete
             )
@@ -304,7 +306,7 @@ struct AppPresentationBuilder {
         return "Current account: \(accountSummary)"
     }
 
-    private nonisolated func expeditionTitle(
+    private nonisolated func expeditionCharacterLabel(
         for expedition: DailyNoteExpedition,
         index: Int
     ) -> String {

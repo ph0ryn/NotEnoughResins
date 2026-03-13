@@ -54,7 +54,8 @@ struct AppPresentationTests {
         #expect(presentation.panel?.hero.value == "161 / 200")
         #expect(presentation.panel?.summaryMetrics.map(\.id) == ["discounts", "tasks", "reward", "homeCoin"])
         #expect(presentation.panel?.expeditionSection?.rows.count == 2)
-        #expect(presentation.panel?.expeditionSection?.rows[0].title == "Character A")
+        #expect(presentation.panel?.expeditionSection?.rows[0].avatarURL == URL(string: "https://example.com/Character_A.png"))
+        #expect(presentation.panel?.expeditionSection?.rows[0].characterLabel == "Character A")
         #expect(presentation.panel?.expeditionSection?.rows[0].value == "00:18 remaining")
     }
 
@@ -166,7 +167,8 @@ struct AppPresentationTests {
             lastSuccessfulFetchAt: snapshot.fetchedAt
         )
 
-        #expect(presentation.panel?.expeditionSection?.rows[0].title == "Character C")
+        #expect(presentation.panel?.expeditionSection?.rows[0].avatarURL == URL(string: "https://example.com/Character_C.png"))
+        #expect(presentation.panel?.expeditionSection?.rows[0].characterLabel == "Character C")
         #expect(presentation.panel?.expeditionSection?.rows[0].value == "Completed")
     }
 }

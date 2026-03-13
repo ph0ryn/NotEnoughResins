@@ -239,7 +239,7 @@ final class NotEnoughResinsUITests: XCTestCase {
         XCTAssertTrue(element(in: app, id: "content.hero.value").waitForExistence(timeout: 2))
         XCTAssertTrue(app.staticTexts["Discount Runs"].waitForExistence(timeout: 2))
         XCTAssertTrue(app.staticTexts["Expeditions 3/5"].waitForExistence(timeout: 2))
-        XCTAssertTrue(app.staticTexts["Character A"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.staticTexts["00:18 remaining"].waitForExistence(timeout: 2))
     }
 
     @MainActor

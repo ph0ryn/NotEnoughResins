@@ -161,12 +161,13 @@ struct ContentView: View {
                         .accessibilityIdentifier("content.expeditions.heading")
 
                     ForEach(expeditionSection.rows) { expedition in
-                        HStack(alignment: .firstTextBaseline) {
-                            Text(expedition.title)
+                        HStack(alignment: .center, spacing: 12) {
+                            expeditionAvatarView(expedition)
                                 .accessibilityIdentifier("content.expedition.\(expedition.id)")
                             Spacer(minLength: 24)
                             Text(expedition.value)
                                 .font(.body.monospacedDigit())
+                                .multilineTextAlignment(.trailing)
                                 .foregroundStyle(expedition.isComplete ? .secondary : .primary)
                         }
                     }
@@ -178,5 +179,50 @@ struct ContentView: View {
             RoundedRectangle(cornerRadius: 12, style: .continuous)
                 .fill(.quaternary.opacity(0.35))
         )
+    }
+
+    private func expeditionAvatarView(_ expedition: AppPresentation.ExpeditionRow) -> some View {
+        Group {
+            if let avatarURL = expedition.avatarURL {
+                AsyncImage(url: avatarURL) { phase in
+                    switch phase {
+                    case let .success(image):
+                        image
+                            .resizable()
+                            .scaledToFit()
+                    case .empty:
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                .fill(.tertiary.opacity(0.2))
+                            ProgressView()
+                                .controlSize(.small)
+                        }
+                    case .failure:
+                        expeditionAvatarPlaceholder()
+                    @unknown default:
+                        expeditionAvatarPlaceholder()
+                    }
+                }
+            } else {
+                expeditionAvatarPlaceholder()
+            }
+        }
+        .frame(width: 40, height: 40)
+        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .strokeBorder(.quaternary, lineWidth: 1)
+        }
+        .accessibilityLabel(expedition.characterLabel)
+    }
+
+    private func expeditionAvatarPlaceholder() -> some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(.tertiary.opacity(0.2))
+            Image(systemName: "person.crop.square.fill")
+                .font(.system(size: 18, weight: .medium))
+                .foregroundStyle(.secondary)
+        }
     }
 }
