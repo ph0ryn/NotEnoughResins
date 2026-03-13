@@ -5,6 +5,7 @@
 //  Created by ph0ryn on 2026/03/12.
 //
 
+import AppKit
 import SwiftUI
 
 @main
@@ -13,13 +14,18 @@ struct NotEnoughResinsApp: App {
     @StateObject private var appState: AppState
 
     init() {
+        let environment = ProcessInfo.processInfo.environment
+        _ = NSApplication.shared.setActivationPolicy(
+            AppActivationPolicyResolver.policy(for: environment)
+        )
+
         let preferencesStore = PreferencesStore.live()
         #if DEBUG
             let uiTestScenario = UITestScenario.current
             let refreshEnabled = uiTestScenario == nil
-                && ProcessInfo.processInfo.environment["NOT_ENOUGH_RESINS_DISABLE_REFRESH"] != "1"
+                && environment["NOT_ENOUGH_RESINS_DISABLE_REFRESH"] != "1"
         #else
-            let refreshEnabled = ProcessInfo.processInfo.environment["NOT_ENOUGH_RESINS_DISABLE_REFRESH"] != "1"
+            let refreshEnabled = environment["NOT_ENOUGH_RESINS_DISABLE_REFRESH"] != "1"
         #endif
         let appState = AppState(
             preferencesStore: preferencesStore,

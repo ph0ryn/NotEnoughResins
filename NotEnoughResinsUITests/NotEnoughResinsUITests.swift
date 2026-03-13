@@ -22,6 +22,8 @@ final class NotEnoughResinsUITests: XCTestCase {
 
         if showsDebugWindow {
             app.launchEnvironment["NOT_ENOUGH_RESINS_UI_TEST_WINDOW"] = "1"
+        } else {
+            app.launchEnvironment["NOT_ENOUGH_RESINS_SHOW_DOCK_ICON"] = "1"
         }
 
         if let scenario {
