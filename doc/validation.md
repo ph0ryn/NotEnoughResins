@@ -3,7 +3,7 @@
 ## Document Status
 
 - Status: Executed with residual gaps
-- Last updated: 2026-03-12
+- Last updated: 2026-03-13
 - Related requirements: `doc/spec.md`
 - Related design: `doc/design.md`
 
@@ -216,6 +216,28 @@ Observed artifact drift:
 - Added `doc/task/task_07.md` to refresh the SDD artifacts so the
   requirements-design-validation chain reflects the implemented version 1
   baseline and any real remaining follow-up.
+
+### 2026-03-13 - Task 08 presentation redesign verification
+
+- Command:
+  `xcodebuild test -scheme NotEnoughResins -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY=-`
+- Result: passed
+
+Executed coverage:
+
+- `AppPresentationTests` now covers the semantic panel model, including the
+  resin hero, ordered summary metrics, overflow waste accessory, auth/request
+  error retention, and completed expedition rows.
+- `DailyNoteServiceTests` and `SnapshotStoreTests` continue to verify that
+  expedition detail survives API decoding and backward-compatible snapshot
+  restore paths.
+- `NotEnoughResinsUITests` verifies the redesigned ready-state panel content,
+  including hero summary, compact metrics, expedition heading and rows, while
+  the real menu bar smoke tests still confirm the live panel opens and exposes
+  footer actions.
+- The integrated suite still passes after the panel refactor, so the task08
+  redesign did not regress configuration, refresh, persistence, or overflow
+  behavior outside the presentation layer.
 
 ## Requirement Coverage
 

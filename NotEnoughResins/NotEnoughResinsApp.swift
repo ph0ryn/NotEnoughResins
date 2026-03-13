@@ -55,6 +55,7 @@ struct NotEnoughResinsApp: App {
             MenuBarStatusLabel(menuBarState: appState.presentation.menuBarState)
         }
         .menuBarExtraStyle(.window)
+        .windowResizability(.contentSize)
 
         Settings {
             PreferencesView(store: preferencesStore)

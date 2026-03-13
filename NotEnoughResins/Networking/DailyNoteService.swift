@@ -61,6 +61,24 @@ struct DailyNoteService: DailyNoteFetching {
                     throw DailyNoteServiceError.invalidResponse
                 }
 
+                let expeditions: [DailyNoteExpedition]
+
+                if let expeditionPayloads = payload.expeditions {
+                    expeditions = try expeditionPayloads.map { expeditionPayload in
+                        guard let remainedTimeSeconds = Int(expeditionPayload.remainedTime) else {
+                            throw DailyNoteServiceError.invalidResponse
+                        }
+
+                        return DailyNoteExpedition(
+                            avatarSideIcon: expeditionPayload.avatarSideIcon,
+                            status: expeditionPayload.status,
+                            remainedTimeSeconds: remainedTimeSeconds
+                        )
+                    }
+                } else {
+                    expeditions = []
+                }
+
                 return DailyNoteSnapshot(
                     fetchedAt: fetchedAt,
                     currentResin: payload.currentResin,
@@ -75,7 +93,8 @@ struct DailyNoteService: DailyNoteFetching {
                     remainingResinDiscounts: payload.remainResinDiscountNum,
                     resinDiscountLimit: payload.resinDiscountNumLimit,
                     currentExpeditionCount: payload.currentExpeditionNum,
-                    maxExpeditionCount: payload.maxExpeditionNum
+                    maxExpeditionCount: payload.maxExpeditionNum,
+                    expeditions: expeditions
                 )
             case 10_001 where envelope.message == "Please login":
                 throw DailyNoteServiceError.authFailure

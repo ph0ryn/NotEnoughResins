@@ -18,8 +18,8 @@ enum UITestWindowController {
         )
         let window = NSWindow(contentViewController: hostingController)
         window.title = "NotEnoughResins Debug"
-        window.setContentSize(NSSize(width: 420, height: 460))
-        window.styleMask.insert(.resizable)
+        hostingController.view.layoutSubtreeIfNeeded()
+        window.setContentSize(hostingController.view.fittingSize)
         window.center()
         window.makeKeyAndOrderFront(nil)
         NSApplication.shared.activate(ignoringOtherApps: true)

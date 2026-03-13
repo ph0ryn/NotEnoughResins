@@ -40,7 +40,19 @@ struct DailyNoteServiceTests {
                 "remain_resin_discount_num": 3,
                 "resin_discount_num_limit": 3,
                 "current_expedition_num": 2,
-                "max_expedition_num": 5
+                "max_expedition_num": 5,
+                "expeditions": [
+                  {
+                    "avatar_side_icon": "https://example.com/Character_A.png",
+                    "status": "Ongoing",
+                    "remained_time": "1080"
+                  },
+                  {
+                    "avatar_side_icon": "https://example.com/Character_B.png",
+                    "status": "Finished",
+                    "remained_time": "0"
+                  }
+                ]
               }
             }
             """
@@ -63,6 +75,10 @@ struct DailyNoteServiceTests {
         #expect(snapshot.homeCoinRecoveryTimeSeconds == 3_600)
         #expect(snapshot.finishedTaskCount == 4)
         #expect(snapshot.currentExpeditionCount == 2)
+        #expect(snapshot.expeditions.count == 2)
+        #expect(snapshot.expeditions[0].avatarSideIcon == "https://example.com/Character_A.png")
+        #expect(snapshot.expeditions[0].remainedTimeSeconds == 1_080)
+        #expect(snapshot.expeditions[1].isComplete)
     }
 
     @Test

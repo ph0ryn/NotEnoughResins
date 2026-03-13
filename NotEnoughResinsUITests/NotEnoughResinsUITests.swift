@@ -37,8 +37,12 @@ final class NotEnoughResinsUITests: XCTestCase {
         file: StaticString = #filePath,
         line: UInt = #line
     ) {
-        let statusLabel = element(in: app, id: "menuBar.statusLabel")
-        XCTAssertTrue(statusLabel.waitForExistence(timeout: 2), file: file, line: line)
+        let candidates = [element(in: app, id: "menuBar.statusLabel")] + menuBarStatusItemCandidates(in: app)
+        guard let statusLabel = waitForAnyElement(candidates, timeout: 2) else {
+            XCTFail("Menu bar status label did not appear.", file: file, line: line)
+            return
+        }
+
         XCTAssertEqual(statusLabel.label, expectedLabel, file: file, line: line)
     }
 
@@ -189,7 +193,7 @@ final class NotEnoughResinsUITests: XCTestCase {
         openMenuBarPanel(in: app)
 
         XCTAssertNotNil(
-            waitForAnyElement(panelElementCandidates(in: app, id: "content.field.waste"), timeout: 2)
+            waitForAnyElement(panelElementCandidates(in: app, id: "content.hero.waste"), timeout: 2)
         )
         assertPanelFooterVisible(in: app)
     }
@@ -232,7 +236,10 @@ final class NotEnoughResinsUITests: XCTestCase {
         app.launch()
 
         assertMenuBarStatusLabel(in: app, equals: "160 / 200")
-        XCTAssertTrue(app.staticTexts["Daily Note Ready"].waitForExistence(timeout: 2))
+        XCTAssertTrue(element(in: app, id: "content.hero.value").waitForExistence(timeout: 2))
+        XCTAssertTrue(app.staticTexts["Discount Runs"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.staticTexts["Expeditions 3/5"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.staticTexts["00:18 remaining"].waitForExistence(timeout: 2))
     }
 
     @MainActor

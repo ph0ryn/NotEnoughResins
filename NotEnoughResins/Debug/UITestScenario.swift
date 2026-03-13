@@ -158,7 +158,9 @@ import Foundation
             currentResin: Int,
             resinRecoveryTimeSeconds: Int
         ) -> DailyNoteSnapshot {
-            DailyNoteSnapshot(
+            let expeditions = makeExpeditions()
+
+            return DailyNoteSnapshot(
                 fetchedAt: fetchedAt,
                 currentResin: currentResin,
                 maxResin: 200,
@@ -171,9 +173,30 @@ import Foundation
                 extraTaskRewardReceived: true,
                 remainingResinDiscounts: 3,
                 resinDiscountLimit: 3,
-                currentExpeditionCount: 2,
-                maxExpeditionCount: 5
+                currentExpeditionCount: expeditions.count,
+                maxExpeditionCount: 5,
+                expeditions: expeditions
             )
+        }
+
+        private static func makeExpeditions() -> [DailyNoteExpedition] {
+            [
+                DailyNoteExpedition(
+                    avatarSideIcon: "https://example.com/Character_A.png",
+                    status: "Ongoing",
+                    remainedTimeSeconds: 1_080
+                ),
+                DailyNoteExpedition(
+                    avatarSideIcon: "https://example.com/Character_B.png",
+                    status: "Ongoing",
+                    remainedTimeSeconds: 6_120
+                ),
+                DailyNoteExpedition(
+                    avatarSideIcon: "https://example.com/Character_C.png",
+                    status: "Finished",
+                    remainedTimeSeconds: 0
+                ),
+            ]
         }
     }
 #endif
