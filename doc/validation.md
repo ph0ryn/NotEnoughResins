@@ -283,6 +283,26 @@ Executed coverage:
   manual refresh restarts the polling loop, so the new coordinator coverage can
   exercise restart behavior without leaking suspended waits.
 
+### 2026-03-15 - Task 09 AppPresentation copy and refill countdown verification
+
+- Command:
+  `xcodebuild test -scheme NotEnoughResins -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY=-`
+- Result: passed
+
+Executed coverage:
+
+- `AppPresentationTests` now verifies the below-cap hero detail line sourced
+  from `resin_recovery_time`, the renamed summary metric ids and labels, the
+  `{remaining} left` daily commissions value, and the absence of a countdown in
+  overflow.
+- `NotEnoughResinsUITests` now verifies the ready-state panel shows the full
+  recovery detail line together with `Weekly Bosses`, `Daily Commissions`, and
+  `Realm Currency`, while the real menu bar overflow smoke path confirms the
+  countdown stays hidden when waste is shown.
+- The integrated suite still passes after the copy and presentation update, so
+  task09 did not regress the existing refresh, persistence, expedition, or menu
+  bar workflows outside the targeted AppPresentation changes.
+
 ## Requirement Coverage
 
 - FR-1, FR-2, FR-10: preferences and persistence checks.

@@ -102,6 +102,9 @@ Mapping rules:
 
 - `resin` is always the primary metric and should show the derived current value
   against max resin.
+- When the account is below cap, `resin.detail` should surface the
+  `resin_recovery_time` countdown under the main value instead of creating a
+  separate metric row.
 - `waste` appears only when overflow timing is known.
 - Overflow does not replace resin. The panel should show resin as the stable
   primary metric and add waste as a warning highlight.
@@ -112,10 +115,10 @@ Mapping rules:
 Instead of splitting the remaining data into multiple titled cards, the next
 iteration should render a single ordered list:
 
-- Discount Runs
-- Daily Tasks
+- Weekly Bosses
+- Daily Commissions
 - Bonus Reward
-- Home Coin
+- Realm Currency
 
 Recommended item shape:
 
@@ -239,13 +242,14 @@ _Last Successful Refresh: Mar 13, 2026 at 10:20_
 
 ### Resin
 **157 / 200**
+Full in 05:20
 
 ---
 
-- Discount Runs: 2 / 3
-- Daily Tasks: 3 / 4
+- Weekly Bosses: 2 / 3
+- Daily Commissions: 1 left
 - Bonus Reward: Pending
-- Home Coin: 1800 / 2400
+- Realm Currency: 1800 / 2400
 
 ---
 
