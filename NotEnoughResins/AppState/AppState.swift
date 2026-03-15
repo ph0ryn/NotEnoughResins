@@ -3,40 +3,61 @@ import Foundation
 
 @MainActor
 final class AppState: ObservableObject {
+    nonisolated static let localPresentationRefreshInterval: TimeInterval = 60
+
     @Published private(set) var configurationState: PreferencesStore.ConfigurationState
     @Published private(set) var refreshPhase: RefreshCoordinator.Phase
     @Published private(set) var resolvedAccount: ResolvedAccount?
     @Published private(set) var latestSnapshot: DailyNoteSnapshot?
     @Published private(set) var lastSuccessfulFetchAt: Date?
     @Published private(set) var trackingState: ResinTrackingState
+    @Published private var presentationTick: Date
 
     private let preferencesStore: PreferencesStore
     private let refreshCoordinator: RefreshCoordinator
     private let presentationBuilder = AppPresentationBuilder()
     private let refreshEnabled: Bool
+    private let nowProvider: () -> Date
     private var derivedResinStateOverride: DerivedResinState?
+    private var presentationDateOverride: Date?
     private var cancellables: Set<AnyCancellable> = []
 
     init(
         preferencesStore: PreferencesStore,
         refreshCoordinator: RefreshCoordinator,
-        refreshEnabled: Bool = ProcessInfo.processInfo.environment["NOT_ENOUGH_RESINS_DISABLE_REFRESH"] != "1"
+        refreshEnabled: Bool = ProcessInfo.processInfo.environment["NOT_ENOUGH_RESINS_DISABLE_REFRESH"] != "1",
+        minuteTicker: AnyPublisher<Date, Never> = AppState.makeMinuteTicker(),
+        nowProvider: @escaping () -> Date = Date.init
     ) {
         self.preferencesStore = preferencesStore
         self.refreshCoordinator = refreshCoordinator
         self.refreshEnabled = refreshEnabled
+        self.nowProvider = nowProvider
         configurationState = preferencesStore.configurationState
         refreshPhase = refreshCoordinator.phase
         resolvedAccount = refreshCoordinator.resolvedAccount
         latestSnapshot = refreshCoordinator.latestSnapshot
         lastSuccessfulFetchAt = refreshCoordinator.lastSuccessfulFetchAt
         trackingState = refreshCoordinator.trackingState
-        bind()
+        presentationTick = nowProvider()
+        bind(minuteTicker: minuteTicker)
         restartRefreshIfNeeded()
     }
 
-    private func bind() {
+    private nonisolated static func makeMinuteTicker() -> AnyPublisher<Date, Never> {
+        Timer.publish(
+            every: localPresentationRefreshInterval,
+            tolerance: 5,
+            on: .main,
+            in: .common
+        )
+        .autoconnect()
+        .eraseToAnyPublisher()
+    }
+
+    private func bind(minuteTicker: AnyPublisher<Date, Never>) {
         preferencesStore.$storedCookie
+            .dropFirst()
             .removeDuplicates()
             .sink { [weak self] _ in
                 guard let self else {
@@ -77,6 +98,12 @@ final class AppState: ObservableObject {
                 self?.trackingState = trackingState
             }
             .store(in: &cancellables)
+
+        minuteTicker
+            .sink { [weak self] tickDate in
+                self?.presentationTick = tickDate
+            }
+            .store(in: &cancellables)
     }
 
     private func restartRefreshIfNeeded() {
@@ -88,12 +115,18 @@ final class AppState: ObservableObject {
         refreshCoordinator.start(cookie: preferencesStore.cookie)
     }
 
-    func derivedResinState(at date: Date = Date()) -> DerivedResinState? {
+    func derivedResinState(at date: Date? = nil) -> DerivedResinState? {
+        let effectiveDate = date ?? currentPresentationDate()
+
         if let derivedResinStateOverride {
             return derivedResinStateOverride
         }
 
-        return refreshCoordinator.derivedResinState(at: date)
+        return refreshCoordinator.derivedResinState(at: effectiveDate)
+    }
+
+    private func currentPresentationDate() -> Date {
+        presentationDateOverride ?? nowProvider()
     }
 
     func refreshNow() {
@@ -130,13 +163,17 @@ final class AppState: ObservableObject {
     }
 
     var presentation: AppPresentation {
-        presentationBuilder.makePresentation(
+        let presentationDate = currentPresentationDate()
+
+        return presentationBuilder.makePresentation(
             configurationState: configurationState,
             refreshPhase: refreshPhase,
             resolvedAccount: resolvedAccount,
             latestSnapshot: latestSnapshot,
-            derivedResinState: derivedResinState(),
-            lastSuccessfulFetchAt: lastSuccessfulFetchAt
+            trackingState: trackingState,
+            derivedResinState: derivedResinState(at: presentationDate),
+            lastSuccessfulFetchAt: lastSuccessfulFetchAt,
+            now: presentationDate
         )
     }
 
@@ -148,7 +185,8 @@ final class AppState: ObservableObject {
             latestSnapshot: DailyNoteSnapshot?,
             derivedResinState: DerivedResinState?,
             lastSuccessfulFetchAt: Date?,
-            trackingState: ResinTrackingState
+            trackingState: ResinTrackingState,
+            presentationDate: Date? = nil
         ) {
             self.configurationState = configurationState
             self.refreshPhase = refreshPhase
@@ -157,6 +195,10 @@ final class AppState: ObservableObject {
             self.lastSuccessfulFetchAt = lastSuccessfulFetchAt
             self.trackingState = trackingState
             derivedResinStateOverride = derivedResinState
+            presentationDateOverride = presentationDate
+            if let presentationDate {
+                presentationTick = presentationDate
+            }
         }
     #endif
 }

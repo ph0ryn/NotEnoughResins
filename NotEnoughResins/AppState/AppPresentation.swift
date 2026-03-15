@@ -62,12 +62,16 @@ struct AppPresentationBuilder {
         refreshPhase: RefreshCoordinator.Phase,
         resolvedAccount: ResolvedAccount?,
         latestSnapshot: DailyNoteSnapshot?,
+        trackingState: ResinTrackingState,
         derivedResinState: DerivedResinState?,
-        lastSuccessfulFetchAt: Date?
+        lastSuccessfulFetchAt: Date?,
+        now: Date
     ) -> AppPresentation {
         let panel = makePanel(
             latestSnapshot: latestSnapshot,
-            derivedResinState: derivedResinState
+            trackingState: trackingState,
+            derivedResinState: derivedResinState,
+            now: now
         )
 
         let lastRefreshText = lastSuccessfulFetchAt?.formatted(
@@ -181,7 +185,9 @@ struct AppPresentationBuilder {
 
     private nonisolated func makePanel(
         latestSnapshot: DailyNoteSnapshot?,
-        derivedResinState: DerivedResinState?
+        trackingState: ResinTrackingState,
+        derivedResinState: DerivedResinState?,
+        now: Date
     ) -> AppPresentation.Panel? {
         guard let latestSnapshot,
               let derivedResinState
@@ -193,8 +199,9 @@ struct AppPresentationBuilder {
             title: "Resin",
             value: "\(derivedResinState.currentResin) / \(derivedResinState.maxResin)",
             detail: recoveryTimeText(
-                resinRecoveryTimeSeconds: latestSnapshot.resinRecoveryTimeSeconds,
-                derivedResinState: derivedResinState
+                predictedFullAt: trackingState.predictedFullAt,
+                derivedResinState: derivedResinState,
+                now: now
             ),
             accessory: derivedResinState.wastedResin.map {
                 AppPresentation.HeroAccessory(label: "Estimated Waste", value: "\($0)")
@@ -353,17 +360,19 @@ struct AppPresentationBuilder {
     }
 
     private nonisolated func recoveryTimeText(
-        resinRecoveryTimeSeconds: Int,
-        derivedResinState: DerivedResinState
+        predictedFullAt: Date?,
+        derivedResinState: DerivedResinState,
+        now: Date
     ) -> String? {
         guard derivedResinState.wastedResin == nil,
               derivedResinState.currentResin < derivedResinState.maxResin,
-              resinRecoveryTimeSeconds > 0
+              let predictedFullAt
         else {
             return nil
         }
 
-        let totalMinutes = Int(ceil(Double(resinRecoveryTimeSeconds) / 60))
+        let remainingSeconds = max(0, Int(predictedFullAt.timeIntervalSince(now)))
+        let totalMinutes = Int(ceil(Double(remainingSeconds) / 60))
         let hours = totalMinutes / 60
         let minutes = totalMinutes % 60
         return String(format: "Full in %02d:%02d", hours, minutes)

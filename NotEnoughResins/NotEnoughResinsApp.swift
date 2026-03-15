@@ -41,7 +41,8 @@ struct NotEnoughResinsApp: App {
                     latestSnapshot: uiTestScenario.latestSnapshot,
                     derivedResinState: uiTestScenario.derivedResinState,
                     lastSuccessfulFetchAt: uiTestScenario.lastSuccessfulFetchAt,
-                    trackingState: uiTestScenario.trackingState
+                    trackingState: uiTestScenario.trackingState,
+                    presentationDate: uiTestScenario.presentationDate
                 )
             }
         #endif

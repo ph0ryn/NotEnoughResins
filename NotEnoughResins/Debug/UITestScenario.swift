@@ -9,6 +9,7 @@ import Foundation
         let derivedResinState: DerivedResinState?
         let lastSuccessfulFetchAt: Date?
         let trackingState: ResinTrackingState
+        let presentationDate: Date?
 
         static var current: UITestScenario? {
             guard let rawValue = ProcessInfo.processInfo.environment["NOT_ENOUGH_RESINS_UI_TEST_SCENARIO"] else {
@@ -37,7 +38,8 @@ import Foundation
                     latestSnapshot: nil,
                     derivedResinState: nil,
                     lastSuccessfulFetchAt: nil,
-                    trackingState: .empty
+                    trackingState: .empty,
+                    presentationDate: nil
                 )
 
             case "normal":
@@ -63,7 +65,8 @@ import Foundation
                         predictedFullAt: fetchedAt.addingTimeInterval(19_200),
                         overflowStartAt: nil,
                         lastKnownWastedResin: nil
-                    )
+                    ),
+                    presentationDate: fetchedAt
                 )
 
             case "overflow":
@@ -89,7 +92,8 @@ import Foundation
                         predictedFullAt: fetchedAt.addingTimeInterval(-3_360),
                         overflowStartAt: fetchedAt.addingTimeInterval(-3_360),
                         lastKnownWastedResin: 7
-                    )
+                    ),
+                    presentationDate: fetchedAt
                 )
 
             case "authError":
@@ -117,7 +121,8 @@ import Foundation
                         predictedFullAt: fetchedAt.addingTimeInterval(9_600),
                         overflowStartAt: nil,
                         lastKnownWastedResin: nil
-                    )
+                    ),
+                    presentationDate: fetchedAt
                 )
 
             case "requestError":
@@ -145,7 +150,8 @@ import Foundation
                         predictedFullAt: fetchedAt.addingTimeInterval(12_000),
                         overflowStartAt: nil,
                         lastKnownWastedResin: nil
-                    )
+                    ),
+                    presentationDate: fetchedAt
                 )
 
             default:
