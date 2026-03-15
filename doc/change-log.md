@@ -1,5 +1,16 @@
 # NotEnoughResins Change Log
 
+## 2026-03-15
+
+### Planning - AppPresentation copy and refill countdown
+
+- Added `doc/task/task_09.md` to scope a follow-up AppPresentation task that
+  shows time until full resin recovery below the resin total when the account
+  is below cap.
+- Captured the approved terminology changes for the compact metrics block so
+  `Discount Runs`, `Daily Tasks`, and `Home Coin` are replaced by
+  `Weekly Bosses`, `Daily Commissions`, and `Realm Currency`.
+
 ## 2026-03-13
 
 ### One-shot - Keep Daily Note state in memory only
