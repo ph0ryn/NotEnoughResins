@@ -12,8 +12,10 @@ struct AppPresentationTests {
             refreshPhase: .needsConfiguration,
             resolvedAccount: nil,
             latestSnapshot: nil,
+            trackingState: .empty,
             derivedResinState: nil,
-            lastSuccessfulFetchAt: nil
+            lastSuccessfulFetchAt: nil,
+            now: Date(timeIntervalSince1970: 1_741_800_000)
         )
 
         #expect(presentation.menuBarState == .needsConfiguration)
@@ -40,12 +42,19 @@ struct AppPresentationTests {
                 level: 60
             ),
             latestSnapshot: snapshot,
+            trackingState: ResinTrackingState(
+                lastBelowCapSnapshotAt: snapshot.fetchedAt,
+                predictedFullAt: snapshot.fetchedAt.addingTimeInterval(19_200),
+                overflowStartAt: nil,
+                lastKnownWastedResin: nil
+            ),
             derivedResinState: DerivedResinState(
                 currentResin: 160,
                 maxResin: 200,
                 wastedResin: nil
             ),
-            lastSuccessfulFetchAt: snapshot.fetchedAt
+            lastSuccessfulFetchAt: snapshot.fetchedAt,
+            now: snapshot.fetchedAt
         )
 
         #expect(presentation.menuBarState == .normal(current: 160, max: 200))
@@ -78,6 +87,63 @@ struct AppPresentationTests {
     }
 
     @Test
+    func belowCapCountdownUsesPredictedFullBaseline() {
+        let snapshot = makeDailyNoteSnapshot(
+            fetchedAt: Date(timeIntervalSince1970: 1_741_800_000),
+            currentResin: 160,
+            resinRecoveryTimeSeconds: 19_200
+        )
+
+        let presentation = builder.makePresentation(
+            configurationState: .configurationReady,
+            refreshPhase: .ready,
+            resolvedAccount: nil,
+            latestSnapshot: snapshot,
+            trackingState: ResinTrackingState(
+                lastBelowCapSnapshotAt: snapshot.fetchedAt,
+                predictedFullAt: snapshot.fetchedAt.addingTimeInterval(19_200),
+                overflowStartAt: nil,
+                lastKnownWastedResin: nil
+            ),
+            derivedResinState: DerivedResinState(
+                currentResin: 160,
+                maxResin: 200,
+                wastedResin: nil
+            ),
+            lastSuccessfulFetchAt: snapshot.fetchedAt,
+            now: snapshot.fetchedAt.addingTimeInterval(60)
+        )
+
+        #expect(presentation.panel?.hero.detail == "Full in 05:19")
+    }
+
+    @Test
+    func belowCapCountdownIsHiddenWithoutPredictedFullBaseline() {
+        let snapshot = makeDailyNoteSnapshot(
+            fetchedAt: Date(timeIntervalSince1970: 1_741_800_000),
+            currentResin: 160,
+            resinRecoveryTimeSeconds: 19_200
+        )
+
+        let presentation = builder.makePresentation(
+            configurationState: .configurationReady,
+            refreshPhase: .ready,
+            resolvedAccount: nil,
+            latestSnapshot: snapshot,
+            trackingState: .empty,
+            derivedResinState: DerivedResinState(
+                currentResin: 160,
+                maxResin: 200,
+                wastedResin: nil
+            ),
+            lastSuccessfulFetchAt: snapshot.fetchedAt,
+            now: snapshot.fetchedAt.addingTimeInterval(60)
+        )
+
+        #expect(presentation.panel?.hero.detail == nil)
+    }
+
+    @Test
     func knownOverflowMapsToOverflowMenuState() {
         let snapshot = makeDailyNoteSnapshot(
             fetchedAt: Date(timeIntervalSince1970: 1_741_800_000),
@@ -90,12 +156,19 @@ struct AppPresentationTests {
             refreshPhase: .ready,
             resolvedAccount: nil,
             latestSnapshot: snapshot,
+            trackingState: ResinTrackingState(
+                lastBelowCapSnapshotAt: snapshot.fetchedAt.addingTimeInterval(-3_840),
+                predictedFullAt: snapshot.fetchedAt.addingTimeInterval(-3_360),
+                overflowStartAt: snapshot.fetchedAt.addingTimeInterval(-3_360),
+                lastKnownWastedResin: 7
+            ),
             derivedResinState: DerivedResinState(
                 currentResin: 200,
                 maxResin: 200,
                 wastedResin: 7
             ),
-            lastSuccessfulFetchAt: snapshot.fetchedAt
+            lastSuccessfulFetchAt: snapshot.fetchedAt,
+            now: snapshot.fetchedAt
         )
 
         #expect(presentation.menuBarState == .overflow(wasted: 7))
@@ -117,12 +190,19 @@ struct AppPresentationTests {
             refreshPhase: .authError("HoYoLAB rejected the saved cookie. Please sign in again."),
             resolvedAccount: nil,
             latestSnapshot: snapshot,
+            trackingState: ResinTrackingState(
+                lastBelowCapSnapshotAt: snapshot.fetchedAt,
+                predictedFullAt: snapshot.fetchedAt.addingTimeInterval(9_600),
+                overflowStartAt: nil,
+                lastKnownWastedResin: nil
+            ),
             derivedResinState: DerivedResinState(
                 currentResin: 181,
                 maxResin: 200,
                 wastedResin: nil
             ),
-            lastSuccessfulFetchAt: snapshot.fetchedAt
+            lastSuccessfulFetchAt: snapshot.fetchedAt,
+            now: snapshot.fetchedAt
         )
 
         #expect(presentation.menuBarState == .authError)
@@ -145,12 +225,19 @@ struct AppPresentationTests {
             ),
             resolvedAccount: nil,
             latestSnapshot: snapshot,
+            trackingState: ResinTrackingState(
+                lastBelowCapSnapshotAt: snapshot.fetchedAt,
+                predictedFullAt: snapshot.fetchedAt.addingTimeInterval(12_000),
+                overflowStartAt: nil,
+                lastKnownWastedResin: nil
+            ),
             derivedResinState: DerivedResinState(
                 currentResin: 176,
                 maxResin: 200,
                 wastedResin: nil
             ),
-            lastSuccessfulFetchAt: snapshot.fetchedAt
+            lastSuccessfulFetchAt: snapshot.fetchedAt,
+            now: snapshot.fetchedAt
         )
 
         #expect(presentation.menuBarState == .requestError)
@@ -178,12 +265,19 @@ struct AppPresentationTests {
             refreshPhase: .ready,
             resolvedAccount: nil,
             latestSnapshot: snapshot,
+            trackingState: ResinTrackingState(
+                lastBelowCapSnapshotAt: snapshot.fetchedAt,
+                predictedFullAt: snapshot.fetchedAt.addingTimeInterval(24_000),
+                overflowStartAt: nil,
+                lastKnownWastedResin: nil
+            ),
             derivedResinState: DerivedResinState(
                 currentResin: 150,
                 maxResin: 200,
                 wastedResin: nil
             ),
-            lastSuccessfulFetchAt: snapshot.fetchedAt
+            lastSuccessfulFetchAt: snapshot.fetchedAt,
+            now: snapshot.fetchedAt
         )
 
         #expect(presentation.panel?.expeditionSection?.rows[0].avatarURL == URL(string: "https://example.com/Character_C.png"))
