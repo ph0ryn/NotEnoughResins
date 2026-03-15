@@ -206,6 +206,9 @@ final class NotEnoughResinsUITests: XCTestCase {
         XCTAssertNotNil(
             waitForAnyElement(panelElementCandidates(in: app, id: "content.hero.waste"), timeout: 2)
         )
+        XCTAssertNil(
+            waitForAnyElement(panelElementCandidates(in: app, id: "content.hero.detail"), timeout: 1)
+        )
         assertPanelFooterVisible(in: app)
     }
 
@@ -248,8 +251,13 @@ final class NotEnoughResinsUITests: XCTestCase {
 
         assertMenuBarStatusLabel(in: app, equals: "160 / 200")
         XCTAssertTrue(element(in: app, id: "content.hero.value").waitForExistence(timeout: 2))
+        XCTAssertTrue(element(in: app, id: "content.hero.detail").waitForExistence(timeout: 2))
         XCTAssertTrue(element(in: app, id: "content.refresh").exists)
-        XCTAssertTrue(app.staticTexts["Discount Runs"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.staticTexts["Full in 05:20"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.staticTexts["Weekly Bosses"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.staticTexts["Daily Commissions"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.staticTexts["0 left"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.staticTexts["Realm Currency"].waitForExistence(timeout: 2))
         XCTAssertTrue(app.staticTexts["Expeditions 3/5"].waitForExistence(timeout: 2))
         XCTAssertTrue(app.staticTexts["00:18 remaining"].waitForExistence(timeout: 2))
     }

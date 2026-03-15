@@ -2,6 +2,17 @@
 
 ## 2026-03-15
 
+### Task 09 - Refine AppPresentation recovery detail and routine metric copy
+
+- Updated the resin hero so below-cap states show the remaining full-recovery
+  countdown from `resin_recovery_time` directly under the current `resin / max`
+  value, while overflow states continue to show waste instead of the countdown.
+- Renamed the compact summary metrics to `Weekly Bosses`,
+  `Daily Commissions`, `Bonus Reward`, and `Realm Currency`, and changed daily
+  commissions to show `{remaining} left`.
+- Extended unit and UI coverage so the new hero detail line, renamed metrics,
+  and overflow-only countdown suppression all stay verified together.
+
 ### Planning - AppPresentation copy and refill countdown
 
 - Added `doc/task/task_09.md` to scope a follow-up AppPresentation task that

@@ -130,6 +130,13 @@ struct ContentView: View {
                     .monospacedDigit()
                     .accessibilityIdentifier("content.hero.value")
 
+                if let detail = panel.hero.detail {
+                    Text(detail)
+                        .font(.caption.monospacedDigit())
+                        .foregroundStyle(.secondary)
+                        .accessibilityIdentifier("content.hero.detail")
+                }
+
                 if let accessory = panel.hero.accessory {
                     HStack(alignment: .firstTextBaseline, spacing: 8) {
                         Text(accessory.label)

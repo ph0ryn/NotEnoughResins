@@ -41,18 +41,36 @@ struct AppPresentationTests {
             ),
             latestSnapshot: snapshot,
             derivedResinState: DerivedResinState(
-                currentResin: 161,
+                currentResin: 160,
                 maxResin: 200,
                 wastedResin: nil
             ),
             lastSuccessfulFetchAt: snapshot.fetchedAt
         )
 
-        #expect(presentation.menuBarState == .normal(current: 161, max: 200))
+        #expect(presentation.menuBarState == .normal(current: 160, max: 200))
         #expect(presentation.title == "Daily Note Ready")
         #expect(presentation.message == "Current account: Traveler on os_asia")
-        #expect(presentation.panel?.hero.value == "161 / 200")
-        #expect(presentation.panel?.summaryMetrics.map(\.id) == ["discounts", "tasks", "reward", "homeCoin"])
+        #expect(presentation.panel?.hero.value == "160 / 200")
+        #expect(presentation.panel?.hero.detail == "Full in 05:20")
+        #expect(presentation.panel?.summaryMetrics.map(\.id) == [
+            "weeklyBosses",
+            "dailyCommissions",
+            "reward",
+            "realmCurrency",
+        ])
+        #expect(presentation.panel?.summaryMetrics.map(\.label) == [
+            "Weekly Bosses",
+            "Daily Commissions",
+            "Bonus Reward",
+            "Realm Currency",
+        ])
+        #expect(presentation.panel?.summaryMetrics.map(\.value) == [
+            "3 / 3",
+            "0 left",
+            "Claimed",
+            "1200 / 2400",
+        ])
         #expect(presentation.panel?.expeditionSection?.rows.count == 2)
         #expect(presentation.panel?.expeditionSection?.rows[0].avatarURL == URL(string: "https://example.com/Character_A.png"))
         #expect(presentation.panel?.expeditionSection?.rows[0].characterLabel == "Character A")
@@ -82,6 +100,7 @@ struct AppPresentationTests {
 
         #expect(presentation.menuBarState == .overflow(wasted: 7))
         #expect(presentation.title == "Overflow Detected")
+        #expect(presentation.panel?.hero.detail == nil)
         #expect(presentation.panel?.hero.accessory == .init(label: "Estimated Waste", value: "7"))
     }
 

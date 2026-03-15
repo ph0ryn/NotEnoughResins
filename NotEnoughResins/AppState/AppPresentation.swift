@@ -18,6 +18,7 @@ struct AppPresentation: Equatable {
     struct Hero: Equatable {
         let title: String
         let value: String
+        let detail: String?
         let accessory: HeroAccessory?
     }
 
@@ -191,21 +192,30 @@ struct AppPresentationBuilder {
         let hero = AppPresentation.Hero(
             title: "Resin",
             value: "\(derivedResinState.currentResin) / \(derivedResinState.maxResin)",
+            detail: recoveryTimeText(
+                resinRecoveryTimeSeconds: latestSnapshot.resinRecoveryTimeSeconds,
+                derivedResinState: derivedResinState
+            ),
             accessory: derivedResinState.wastedResin.map {
                 AppPresentation.HeroAccessory(label: "Estimated Waste", value: "\($0)")
             }
         )
 
+        let remainingDailyCommissions = max(
+            0,
+            latestSnapshot.totalTaskCount - latestSnapshot.finishedTaskCount
+        )
+
         let summaryMetrics: [AppPresentation.SummaryMetric] = [
             .init(
-                id: "discounts",
-                label: "Discount Runs",
+                id: "weeklyBosses",
+                label: "Weekly Bosses",
                 value: "\(latestSnapshot.remainingResinDiscounts) / \(latestSnapshot.resinDiscountLimit)"
             ),
             .init(
-                id: "tasks",
-                label: "Daily Tasks",
-                value: "\(latestSnapshot.finishedTaskCount) / \(latestSnapshot.totalTaskCount)"
+                id: "dailyCommissions",
+                label: "Daily Commissions",
+                value: "\(remainingDailyCommissions) left"
             ),
             .init(
                 id: "reward",
@@ -213,8 +223,8 @@ struct AppPresentationBuilder {
                 value: latestSnapshot.extraTaskRewardReceived ? "Claimed" : "Pending"
             ),
             .init(
-                id: "homeCoin",
-                label: "Home Coin",
+                id: "realmCurrency",
+                label: "Realm Currency",
                 value: "\(latestSnapshot.currentHomeCoin) / \(latestSnapshot.maxHomeCoin)"
             ),
         ]
@@ -340,5 +350,22 @@ struct AppPresentationBuilder {
         let hours = totalMinutes / 60
         let minutes = totalMinutes % 60
         return String(format: "%02d:%02d remaining", hours, minutes)
+    }
+
+    private nonisolated func recoveryTimeText(
+        resinRecoveryTimeSeconds: Int,
+        derivedResinState: DerivedResinState
+    ) -> String? {
+        guard derivedResinState.wastedResin == nil,
+              derivedResinState.currentResin < derivedResinState.maxResin,
+              resinRecoveryTimeSeconds > 0
+        else {
+            return nil
+        }
+
+        let totalMinutes = Int(ceil(Double(resinRecoveryTimeSeconds) / 60))
+        let hours = totalMinutes / 60
+        let minutes = totalMinutes % 60
+        return String(format: "Full in %02d:%02d", hours, minutes)
     }
 }
