@@ -3,7 +3,7 @@
 ## Document Status
 
 - Status: Executed with residual gaps
-- Last updated: 2026-03-13
+- Last updated: 2026-03-15
 - Related requirements: `doc/spec.md`
 - Related design: `doc/design.md`
 
@@ -30,6 +30,40 @@
   redacted.
 
 ## Executed Checks
+
+### 2026-03-15 - Task 10 local minute presentation refresh
+
+- Command:
+  `xcodebuild test -scheme NotEnoughResins -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY=-`
+- Result: passed
+
+Executed coverage:
+
+- `AppStateTests` covered minute-driven presentation updates from local elapsed
+  time, including the 8-minute resin recovery boundary, stable
+  `lastRefreshText`, and the guarantee that minute ticks do not trigger extra
+  account discovery or Daily Note requests.
+- `AppPresentationTests` covered deriving the below-cap countdown from
+  `predictedFullAt` and suppressing the countdown when no reliable local
+  baseline exists.
+- The local minute-refresh wiring also now skips the initial replay from
+  `PreferencesStore.$storedCookie`, preventing a duplicate startup refresh loop
+  when a saved cookie is already present.
+- The full UI suite continued to pass with deterministic debug scenarios after
+  freezing each scenario's presentation-time baseline to the fetched snapshot
+  timestamp.
+
+### 2026-03-15 - Task 10 documentation verification
+
+- Command:
+  `markdownlint-cli2 "doc/**/*.md" --config ~/.markdownlint-cli2.jsonc`
+- Result: passed
+
+Executed coverage:
+
+- Confirmed the task10 planning artifact plus the updated validation and
+  change-log documents remain clean under the repository-standard Markdown lint
+  configuration.
 
 ### 2026-03-13 - One-shot keep Daily Note state in memory only
 

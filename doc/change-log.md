@@ -2,6 +2,28 @@
 
 ## 2026-03-15
 
+### Task 10 - Drive AppPresentation with local minute updates
+
+- Added a minute-driven presentation refresh path in `AppState` so the menu
+  bar and main panel keep deriving resin state locally between the existing
+  10-minute Daily Note refreshes instead of staying visually frozen.
+- Rebased the below-cap hero countdown on the shared local recovery baseline
+  from `predictedFullAt`, while keeping `lastRefreshText` tied to the last
+  successful API fetch time rather than the minute tick.
+- Updated debug UI scenarios and automated coverage so minute ticks advance the
+  displayed countdown and resin value without triggering extra network refresh,
+  and fixed the saved-cookie startup path so the initial `storedCookie` replay
+  no longer starts a duplicate refresh loop.
+
+### Planning - AppPresentation local minute updates
+
+- Added `doc/task/task_10.md` to scope a follow-up task that keeps
+  `AppPresentation` updating from local elapsed time between the existing
+  10-minute Daily Note refreshes.
+- Captured the clarified constraint that API refresh remains on the current
+  10-minute cadence, while the menu bar and main-panel resin display should
+  keep moving during the other minutes from local state.
+
 ### Task 09 - Refine AppPresentation recovery detail and routine metric copy
 
 - Updated the resin hero so below-cap states show the remaining full-recovery
