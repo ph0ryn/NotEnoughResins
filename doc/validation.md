@@ -31,6 +31,31 @@
 
 ## Executed Checks
 
+### 2026-03-19 - Task 11 cookie field interaction follow-up
+
+- Command:
+  `xcodebuild test -scheme NotEnoughResins -destination 'platform=macOS' -skip-testing:NotEnoughResinsUITests -derivedDataPath /tmp/NotEnoughResins-task11-caret CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY=-`
+- Result: passed
+
+Executed coverage:
+
+- Confirmed the task11 unit-test suite still passes after replacing the
+  unstable SwiftUI cookie field with an AppKit-backed single-line text field
+  that preserves standard macOS editing behavior for long cookie values.
+
+### 2026-03-19 - Task 11 cookie field interaction UI verification attempt
+
+- Command:
+  `xcodebuild test -scheme NotEnoughResins -destination 'platform=macOS' -derivedDataPath /tmp/NotEnoughResins-task11-caret-ui CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY=- -only-testing:NotEnoughResinsUITests/NotEnoughResinsUITests/testPreferencesSavePersistsAcrossRelaunch -only-testing:NotEnoughResinsUITests/NotEnoughResinsUITests/testPreferencesCanBeReopenedAfterSavingFromMenuBarPanel`
+- Result: interrupted in environment
+
+Observed outcome:
+
+- The targeted UI-test run built successfully with the AppKit-backed cookie
+  field in place, but the runner stopped making forward progress after launch
+  and had to be interrupted manually, so caret-interaction verification still
+  relies on manual confirmation in this environment.
+
 ### 2026-03-19 - Task 11 single-line cookie field verification
 
 - Command:
