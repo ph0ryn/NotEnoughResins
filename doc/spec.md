@@ -3,7 +3,7 @@
 ## Document Status
 
 - Status: Draft
-- Last updated: 2026-03-11
+- Last updated: 2026-03-19
 - Source draft: `temp-spec.md`
 
 ## Background
@@ -32,8 +32,9 @@ Version 1 includes the following:
   configuration or authentication.
 - A main panel that shows formatted Daily Note data and exposes Preferences and
   Quit actions.
-- Local persistence for configuration and cached resin tracking state across
-  launches.
+- Local persistence for configuration only.
+- Daily Note snapshots and resin tracking state kept in memory for the current
+  app session only.
 
 ## Non-Scope
 
@@ -142,13 +143,35 @@ Clicking the menu bar entry shall open the application's main panel. The panel
 shall show a formatted view of Daily Note data from the latest successful
 snapshot and shall expose:
 
+- Individual expedition entries with per-character remaining time or completion
+  state when expedition data is available.
 - A Preferences action.
+- A Refresh action.
 - A Quit action.
+
+After the user opens Preferences from the main panel and closes the Preferences
+window, the main panel footer actions shall remain operable in the same app
+session.
+
+If a cookie is configured, the Refresh action shall remain enabled even while
+the app is resolving the account or refreshing the Daily Note snapshot.
 
 ### FR-10 Preferences UI
 
 The application shall provide a preferences UI that lets the user update stored
-account configuration.
+account configuration through a single edit-and-save flow for the stored
+cookie.
+
+The preferences UI shall not require a separate control to reload the saved
+cookie into the editor.
+
+Each successful cookie save shall immediately trigger a refresh attempt, even
+when the normalized cookie string is unchanged from the previously stored
+value.
+
+After a successful save, the user shall not need to press the manual Refresh
+action to load the first usable Daily Note snapshot or error state for that
+saved cookie.
 
 ### FR-11 Error Handling
 
@@ -169,9 +192,10 @@ application shall not start Daily Note polling.
 
 ### FR-12 Resin Waste Tracking
 
-The application shall compare the latest successful snapshot against cached
-tracking data to estimate when natural recovery first reached the cap and how
-much resin has been wasted since that time.
+The application shall compare the latest successful snapshot against in-memory
+tracking data collected during the current app session to estimate when natural
+recovery first reached the cap and how much resin has been wasted since that
+time.
 
 If the application does not have enough prior state to calculate a reliable
 overflow start time, it shall avoid showing a fabricated waste count.
@@ -230,9 +254,12 @@ required baseline is missing.
   state.
 - Clicking the menu bar entry opens a panel that exposes formatted Daily Note
   data plus Preferences and Quit actions.
+- When expedition data is available, the main panel shows each expedition
+  separately instead of only an aggregate expedition count.
 - Resin waste is only shown when the application has enough data to support the
   estimate.
-- Configuration and tracking state survive application relaunch.
+- Configuration survives application relaunch.
+- Resin tracking restarts from fresh app-session data after relaunch.
 
 ## Unresolved Items
 

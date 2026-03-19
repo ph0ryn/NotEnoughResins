@@ -1,0 +1,380 @@
+import Foundation
+
+struct AppPresentation: Equatable {
+    enum Icon: Equatable {
+        case system(String)
+        case asset(String)
+    }
+
+    enum MenuBarState: Equatable {
+        case needsConfiguration
+        case loading
+        case normal(current: Int, max: Int)
+        case overflow(wasted: Int)
+        case authError
+        case requestError
+    }
+
+    struct HeroAccessory: Equatable {
+        let label: String
+        let value: String
+    }
+
+    struct Hero: Equatable {
+        let title: String
+        let value: String
+        let detail: String?
+        let accessory: HeroAccessory?
+    }
+
+    struct SummaryMetric: Equatable, Identifiable {
+        let id: String
+        let label: String
+        let value: String
+    }
+
+    struct ExpeditionRow: Equatable, Identifiable {
+        let id: String
+        let avatarURL: URL?
+        let characterLabel: String
+        let value: String
+        let isComplete: Bool
+    }
+
+    struct ExpeditionSection: Equatable {
+        let currentCount: Int
+        let maxCount: Int
+        let rows: [ExpeditionRow]
+    }
+
+    struct Panel: Equatable {
+        let hero: Hero
+        let summaryMetrics: [SummaryMetric]
+        let expeditionSection: ExpeditionSection?
+    }
+
+    let menuBarState: MenuBarState
+    let title: String
+    let message: String
+    let icon: Icon
+    let lastRefreshText: String?
+    let panel: Panel?
+}
+
+struct AppPresentationBuilder {
+    nonisolated func makePresentation(
+        configurationState: PreferencesStore.ConfigurationState,
+        refreshPhase: RefreshCoordinator.Phase,
+        resolvedAccount: ResolvedAccount?,
+        latestSnapshot: DailyNoteSnapshot?,
+        trackingState: ResinTrackingState,
+        derivedResinState: DerivedResinState?,
+        lastSuccessfulFetchAt: Date?,
+        now: Date
+    ) -> AppPresentation {
+        let panel = makePanel(
+            latestSnapshot: latestSnapshot,
+            trackingState: trackingState,
+            derivedResinState: derivedResinState,
+            now: now
+        )
+
+        let lastRefreshText = lastSuccessfulFetchAt?.formatted(
+            date: .abbreviated,
+            time: .shortened
+        )
+
+        switch configurationState {
+        case .needsConfiguration:
+            return AppPresentation(
+                menuBarState: .needsConfiguration,
+                title: "Configuration Needed",
+                message: "Save a HoYoLAB cookie in Preferences before account discovery can start.",
+                icon: .system("exclamationmark.triangle.fill"),
+                lastRefreshText: lastRefreshText,
+                panel: panel
+            )
+
+        case .configurationReady:
+            switch refreshPhase {
+            case .idle:
+                if let derivedResinState {
+                    let menuBarState = makeReadyMenuBarState(from: derivedResinState)
+
+                    return AppPresentation(
+                        menuBarState: menuBarState,
+                        title: "Configuration Ready",
+                        message: "A HoYoLAB cookie is stored and the latest Daily Note snapshot is ready.",
+                        icon: icon(for: menuBarState),
+                        lastRefreshText: lastRefreshText,
+                        panel: panel
+                    )
+                }
+
+                return AppPresentation(
+                    menuBarState: .loading,
+                    title: "Configuration Ready",
+                    message: "A HoYoLAB cookie is stored and ready for the first refresh.",
+                    icon: .system("gearshape.2.fill"),
+                    lastRefreshText: lastRefreshText,
+                    panel: panel
+                )
+
+            case .needsConfiguration, .discoveringAccount:
+                return AppPresentation(
+                    menuBarState: .loading,
+                    title: "Resolving Account",
+                    message: "Resolving the configured Genshin account before Daily Note polling starts.",
+                    icon: .system("person.crop.circle.badge.clock"),
+                    lastRefreshText: lastRefreshText,
+                    panel: panel
+                )
+
+            case .refreshingDailyNote:
+                return AppPresentation(
+                    menuBarState: .loading,
+                    title: latestSnapshot == nil ? "Loading Daily Note" : "Refreshing Daily Note",
+                    message: latestSnapshot == nil
+                        ? "Fetching the first Daily Note snapshot."
+                        : "Refreshing the latest Daily Note snapshot while keeping the last known data visible.",
+                    icon: .system("arrow.triangle.2.circlepath.circle.fill"),
+                    lastRefreshText: lastRefreshText,
+                    panel: panel
+                )
+
+            case .ready:
+                guard let derivedResinState else {
+                    return AppPresentation(
+                        menuBarState: .loading,
+                        title: "Loading Daily Note",
+                        message: "Waiting for the first Daily Note snapshot.",
+                        icon: .system("arrow.triangle.2.circlepath.circle.fill"),
+                        lastRefreshText: lastRefreshText,
+                        panel: panel
+                    )
+                }
+
+                let menuBarState = makeReadyMenuBarState(from: derivedResinState)
+
+                return AppPresentation(
+                    menuBarState: menuBarState,
+                    title: title(for: menuBarState),
+                    message: readyMessage(resolvedAccount: resolvedAccount),
+                    icon: icon(for: menuBarState),
+                    lastRefreshText: lastRefreshText,
+                    panel: panel
+                )
+
+            case let .authError(message):
+                return AppPresentation(
+                    menuBarState: .authError,
+                    title: "Authentication Failed",
+                    message: message,
+                    icon: .system("person.crop.circle.badge.exclamationmark.fill"),
+                    lastRefreshText: lastRefreshText,
+                    panel: panel
+                )
+
+            case let .requestError(message):
+                return AppPresentation(
+                    menuBarState: .requestError,
+                    title: "Request Failed",
+                    message: message,
+                    icon: .system("wifi.exclamationmark"),
+                    lastRefreshText: lastRefreshText,
+                    panel: panel
+                )
+            }
+        }
+    }
+
+    private nonisolated func makePanel(
+        latestSnapshot: DailyNoteSnapshot?,
+        trackingState: ResinTrackingState,
+        derivedResinState: DerivedResinState?,
+        now: Date
+    ) -> AppPresentation.Panel? {
+        guard let latestSnapshot,
+              let derivedResinState
+        else {
+            return nil
+        }
+
+        let hero = AppPresentation.Hero(
+            title: "Resin",
+            value: "\(derivedResinState.currentResin) / \(derivedResinState.maxResin)",
+            detail: recoveryTimeText(
+                predictedFullAt: trackingState.predictedFullAt,
+                derivedResinState: derivedResinState,
+                now: now
+            ),
+            accessory: derivedResinState.wastedResin.map {
+                AppPresentation.HeroAccessory(label: "Estimated Waste", value: "\($0)")
+            }
+        )
+
+        let remainingDailyCommissions = max(
+            0,
+            latestSnapshot.totalTaskCount - latestSnapshot.finishedTaskCount
+        )
+
+        let summaryMetrics: [AppPresentation.SummaryMetric] = [
+            .init(
+                id: "weeklyBosses",
+                label: "Weekly Bosses",
+                value: "\(latestSnapshot.remainingResinDiscounts) / \(latestSnapshot.resinDiscountLimit) left"
+            ),
+            .init(
+                id: "dailyCommissions",
+                label: "Daily Commissions",
+                value: "\(remainingDailyCommissions) / \(latestSnapshot.totalTaskCount) left"
+            ),
+            .init(
+                id: "realmCurrency",
+                label: "Realm Currency",
+                value: "\(latestSnapshot.currentHomeCoin) / \(latestSnapshot.maxHomeCoin)"
+            ),
+        ]
+
+        let expeditionRows = latestSnapshot.expeditions.enumerated().map { index, expedition in
+            AppPresentation.ExpeditionRow(
+                id: "character-\(index + 1)",
+                avatarURL: URL(string: expedition.avatarSideIcon),
+                characterLabel: expeditionCharacterLabel(for: expedition, index: index),
+                value: expeditionValue(for: expedition),
+                isComplete: expedition.isComplete
+            )
+        }
+
+        let expeditionSection: AppPresentation.ExpeditionSection? =
+            expeditionRows.isEmpty
+                ? nil
+                : AppPresentation.ExpeditionSection(
+                    currentCount: latestSnapshot.currentExpeditionCount,
+                    maxCount: latestSnapshot.maxExpeditionCount,
+                    rows: expeditionRows
+                )
+
+        return AppPresentation.Panel(
+            hero: hero,
+            summaryMetrics: summaryMetrics,
+            expeditionSection: expeditionSection
+        )
+    }
+
+    private nonisolated func makeReadyMenuBarState(from derivedResinState: DerivedResinState) -> AppPresentation.MenuBarState {
+        if let wastedResin = derivedResinState.wastedResin {
+            return .overflow(wasted: wastedResin)
+        }
+
+        return .normal(
+            current: derivedResinState.currentResin,
+            max: derivedResinState.maxResin
+        )
+    }
+
+    private nonisolated func title(for menuBarState: AppPresentation.MenuBarState) -> String {
+        switch menuBarState {
+        case .needsConfiguration:
+            "Configuration Needed"
+        case .loading:
+            "Loading Daily Note"
+        case .normal:
+            "Daily Note Ready"
+        case .overflow:
+            "Overflow Detected"
+        case .authError:
+            "Authentication Failed"
+        case .requestError:
+            "Request Failed"
+        }
+    }
+
+    private nonisolated func icon(for menuBarState: AppPresentation.MenuBarState) -> AppPresentation.Icon {
+        switch menuBarState {
+        case .needsConfiguration:
+            .system("exclamationmark.triangle.fill")
+        case .loading:
+            .system("arrow.triangle.2.circlepath.circle.fill")
+        case .normal:
+            .asset("AppPresentationIcon")
+        case .overflow:
+            .system("trash.fill")
+        case .authError:
+            .system("person.crop.circle.badge.exclamationmark.fill")
+        case .requestError:
+            .system("wifi.exclamationmark")
+        }
+    }
+
+    private nonisolated func readyMessage(resolvedAccount: ResolvedAccount?) -> String {
+        let accountSummary: String
+
+        if let resolvedAccount {
+            if let nickname = resolvedAccount.nickname, nickname.isEmpty == false {
+                accountSummary = "\(nickname) on \(resolvedAccount.server)"
+            } else {
+                accountSummary = "\(resolvedAccount.server) / role \(resolvedAccount.roleId)"
+            }
+        } else {
+            accountSummary = "the saved account"
+        }
+
+        return "Current account: \(accountSummary)"
+    }
+
+    private nonisolated func expeditionCharacterLabel(
+        for expedition: DailyNoteExpedition,
+        index: Int
+    ) -> String {
+        guard let url = URL(string: expedition.avatarSideIcon) else {
+            return "Character \(index + 1)"
+        }
+
+        let identifier = url.deletingPathExtension().lastPathComponent
+            .replacingOccurrences(of: "_", with: " ")
+            .replacingOccurrences(of: "-", with: " ")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        guard identifier.isEmpty == false,
+              identifier.rangeOfCharacter(from: .letters) != nil
+        else {
+            return "Character \(index + 1)"
+        }
+
+        return identifier
+            .split(separator: " ")
+            .map { $0.capitalized }
+            .joined(separator: " ")
+    }
+
+    private nonisolated func expeditionValue(for expedition: DailyNoteExpedition) -> String {
+        if expedition.isComplete {
+            return "Completed"
+        }
+
+        let totalMinutes = Int(ceil(Double(expedition.remainedTimeSeconds) / 60))
+        let hours = totalMinutes / 60
+        let minutes = totalMinutes % 60
+        return String(format: "%02d:%02d remaining", hours, minutes)
+    }
+
+    private nonisolated func recoveryTimeText(
+        predictedFullAt: Date?,
+        derivedResinState: DerivedResinState,
+        now: Date
+    ) -> String? {
+        guard derivedResinState.wastedResin == nil,
+              derivedResinState.currentResin < derivedResinState.maxResin,
+              let predictedFullAt
+        else {
+            return nil
+        }
+
+        let remainingSeconds = max(0, Int(predictedFullAt.timeIntervalSince(now)))
+        let totalMinutes = Int(ceil(Double(remainingSeconds) / 60))
+        let hours = totalMinutes / 60
+        let minutes = totalMinutes % 60
+        return String(format: "Full in %02d:%02d", hours, minutes)
+    }
+}

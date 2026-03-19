@@ -2,7 +2,7 @@
 
 ## Execution Summary
 
-- Date: 2026-03-11
+- Date: 2026-03-12
 - Inputs: `.env` `HOYOLAB_COOKIE`
 - Scope: read-only live requests to the two approved HoYoLAB URLs
 - Secret handling: cookies, account IDs, role IDs, and nicknames are redacted

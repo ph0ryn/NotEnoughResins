@@ -1,16 +1,18 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
-
-SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-
-cd "$SCRIPT_DIR"
+rm -rf ./build
+mkdir ./build
 
 xcodebuild \
-  build \
+  archive \
+  -project NotEnoughResins.xcodeproj \
   -scheme NotEnoughResins \
-  -configuration Debug \
-  -destination 'platform=macOS' \
-  -derivedDataPath "$SCRIPT_DIR/build" \
+  -archivePath build/archive.xcarchive \
+  -configuration Release \
+  -destination "platform=macOS" \
   CODE_SIGNING_ALLOWED=NO \
   CODE_SIGN_IDENTITY=-
+
+cp -r build/archive.xcarchive/Products/Applications/NotEnoughResins.app ./build/NotEnoughResins.app
+
+echo "Build complete!"

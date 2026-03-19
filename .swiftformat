@@ -1,0 +1,6 @@
+--swift-version 5
+
+--indent 4
+--decimal-grouping 3
+
+--disable wrap
