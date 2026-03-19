@@ -31,6 +31,32 @@
 
 ## Executed Checks
 
+### 2026-03-19 - Task 11 cookie field blur follow-up
+
+- Command:
+  `xcodebuild test -scheme NotEnoughResins -destination 'platform=macOS' -skip-testing:NotEnoughResinsUITests -derivedDataPath /tmp/NotEnoughResins-task11-blur CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY=-`
+- Result: passed
+
+Executed coverage:
+
+- Confirmed the task11 unit-test suite still passes after the AppKit-backed
+  cookie field started ending editing explicitly on `Return` and outside
+  clicks instead of remaining unexpectedly active.
+- Interactive blur behavior still requires manual confirmation because the
+  existing UI-test runner issue in this environment prevents reliable
+  automation of the Preferences interaction path.
+
+### 2026-03-19 - Task 11 cookie field blur documentation verification
+
+- Command:
+  `markdownlint-cli2 "doc/**/*.md" --config ~/.markdownlint-cli2.jsonc`
+- Result: passed
+
+Executed coverage:
+
+- Confirmed the task11 artifact updates for the cookie-field blur follow-up
+  remain clean under the repository Markdown lint configuration.
+
 ### 2026-03-19 - Task 11 cookie field interaction follow-up
 
 - Command:

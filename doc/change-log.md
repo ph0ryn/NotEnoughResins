@@ -2,6 +2,13 @@
 
 ## 2026-03-19
 
+### Task 11 - Cookie field blur follow-up
+
+- Updated the AppKit-backed Preferences cookie field to explicitly end
+  editing when the user presses `Return` or clicks elsewhere in the Settings
+  window, so the field no longer remains selected or unexpectedly active after
+  the user leaves it.
+
 ### Planning - Task 11 save-triggered refresh parity
 
 - Extended `doc/task/task_11.md` so the same follow-up task now also requires
