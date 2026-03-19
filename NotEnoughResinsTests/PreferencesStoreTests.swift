@@ -47,7 +47,19 @@ struct PreferencesStoreTests {
             keychain.values[PreferencesStore.cookieStorageAccount]
                 == "account_id_v2=123; cookie_token_v2=abc"
         )
+        #expect(store.saveRevision == 1)
         #expect(store.lastErrorMessage == nil)
+    }
+
+    @Test
+    func repeatedNormalizedSavesAdvanceSaveRevision() throws {
+        let keychain = InMemoryKeychainStore()
+        let store = PreferencesStore(keychain: keychain)
+
+        try store.saveCookie("account_id_v2=123; cookie_token_v2=abc")
+        try store.saveCookie(" account_id_v2=123; cookie_token_v2=abc ")
+
+        #expect(store.saveRevision == 2)
     }
 
     @Test

@@ -64,15 +64,10 @@ final class AppState: ObservableObject {
             }
             .store(in: &cancellables)
 
-        preferencesStore.$storedCookie
+        preferencesStore.$saveRevision
             .dropFirst()
-            .removeDuplicates()
             .sink { [weak self] _ in
-                guard let self else {
-                    return
-                }
-
-                restartRefreshIfNeeded()
+                self?.refreshFromSavedCookie()
             }
             .store(in: &cancellables)
 
@@ -122,6 +117,15 @@ final class AppState: ObservableObject {
         refreshCoordinator.start(cookie: preferencesStore.cookie)
     }
 
+    private func refreshFromSavedCookie() {
+        guard refreshEnabled else {
+            refreshPhase = .idle
+            return
+        }
+
+        refreshCoordinator.refreshNow(cookie: preferencesStore.cookie)
+    }
+
     func derivedResinState(at date: Date? = nil) -> DerivedResinState? {
         let effectiveDate = date ?? currentPresentationDate()
 
@@ -137,15 +141,7 @@ final class AppState: ObservableObject {
     }
 
     func refreshNow() {
-        guard let cookie = preferencesStore.cookie else {
-            return
-        }
-
-        guard refreshEnabled else {
-            return
-        }
-
-        refreshCoordinator.refreshNow(cookie: cookie)
+        refreshFromSavedCookie()
     }
 
     var canRefreshNow: Bool {

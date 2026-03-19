@@ -25,6 +25,7 @@ final class PreferencesStore: ObservableObject {
     static let cookieStorageAccount = "hoyolab-cookie"
 
     @Published private(set) var storedCookie: String = ""
+    @Published private(set) var saveRevision: UInt64 = 0
     @Published private(set) var configurationState: ConfigurationState = .needsConfiguration
     @Published private(set) var lastErrorMessage: String?
 
@@ -67,6 +68,7 @@ final class PreferencesStore: ObservableObject {
             storedCookie = normalized
             configurationState = .configurationReady
             lastErrorMessage = nil
+            saveRevision &+= 1
             return configurationState
         } catch {
             lastErrorMessage = SaveError.persistenceFailed.localizedDescription
