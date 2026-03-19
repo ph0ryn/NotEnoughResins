@@ -222,17 +222,12 @@ struct AppPresentationBuilder {
             .init(
                 id: "weeklyBosses",
                 label: "Weekly Bosses",
-                value: "\(latestSnapshot.remainingResinDiscounts) / \(latestSnapshot.resinDiscountLimit)"
+                value: "\(latestSnapshot.remainingResinDiscounts) / \(latestSnapshot.resinDiscountLimit) left"
             ),
             .init(
                 id: "dailyCommissions",
                 label: "Daily Commissions",
-                value: "\(remainingDailyCommissions) left"
-            ),
-            .init(
-                id: "reward",
-                label: "Bonus Reward",
-                value: latestSnapshot.extraTaskRewardReceived ? "Claimed" : "Pending"
+                value: "\(remainingDailyCommissions) / \(latestSnapshot.totalTaskCount) left"
             ),
             .init(
                 id: "realmCurrency",
