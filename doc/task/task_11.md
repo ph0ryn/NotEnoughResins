@@ -36,13 +36,6 @@ workflow is save-only.
 - Preferences no longer shows a `Reload Saved Cookie` control.
 - The Preferences cookie editor behaves as a normal single-line text field and
   keeps the active insertion point visible while editing long cookie values.
-- The Preferences cookie editor continues to accept repeated click-to-place
-  caret moves and deletions without trapping focus or losing normal cursor
-  placement behavior mid-edit.
-- Pressing `Return` in the Preferences cookie editor ends editing instead of
-  selecting the entire field contents again.
-- Clicking elsewhere in the Preferences window ends cookie-field editing so
-  the insertion caret does not remain active unexpectedly.
 - Saving a non-empty cookie still writes the normalized value to Keychain and
   leaves Preferences in a configuration-ready state.
 - Existing startup cookie loading behavior remains unchanged.
@@ -78,14 +71,6 @@ workflow is save-only.
 - The cookie remains plain text, but task11 no longer requires a custom
   multiline editor. A standard single-line field is preferred because it keeps
   normal caret visibility for long values.
-- Follow-up investigation on 2026-03-19 found that the direct SwiftUI
-  `TextField` replacement did not preserve reliable caret placement for long
-  cookie editing in the Settings form. The task contract remains single-line,
-  but an AppKit-backed single-line field is acceptable if needed to preserve
-  ordinary macOS text-field behavior.
-- Follow-up investigation on 2026-03-19 also found that the AppKit-backed
-  field still needed explicit responder handling so `Return` and outside
-  clicks end editing instead of leaving the field unexpectedly active.
 - Preserve current save validation and feedback messaging unless a small copy
   adjustment is required to keep the simplified Preferences flow coherent.
 
@@ -104,10 +89,6 @@ workflow is save-only.
 - Manual: confirm Preferences no longer shows `Reload Saved Cookie`.
 - Manual: confirm the cookie editor behaves as a normal single-line field and
   keeps the active insertion point visible while editing a long cookie.
-- Manual: confirm repeated caret repositioning and deletions continue to work
-  while editing the same long cookie value.
-- Manual: confirm pressing `Return` or clicking outside the field ends editing
-  and removes the active insertion caret.
 
 ## References
 

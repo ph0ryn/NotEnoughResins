@@ -2,13 +2,6 @@
 
 ## 2026-03-19
 
-### Task 11 - Cookie field blur follow-up
-
-- Updated the AppKit-backed Preferences cookie field to explicitly end
-  editing when the user presses `Return` or clicks elsewhere in the Settings
-  window, so the field no longer remains selected or unexpectedly active after
-  the user leaves it.
-
 ### Planning - Task 11 save-triggered refresh parity
 
 - Extended `doc/task/task_11.md` so the same follow-up task now also requires
@@ -34,9 +27,6 @@
   `AppState` to trigger post-save refresh from that event, so every successful
   cookie save now starts an immediate refresh attempt even when the normalized
   cookie value did not change.
-- Replaced the unstable Preferences cookie `TextEditor` with an AppKit-backed
-  standard single-line field so long cookie values keep normal caret
-  visibility and cursor placement behavior while editing.
 - Removed `Reload Saved Cookie` from Preferences so the cookie flow is edit and
   save only.
 - Extended UI coverage to assert that the removed reload control no longer
