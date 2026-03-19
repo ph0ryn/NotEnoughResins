@@ -3,7 +3,7 @@
 ## Document Status
 
 - Status: Draft
-- Last updated: 2026-03-13
+- Last updated: 2026-03-19
 - Source draft: `temp-spec.md`
 
 ## Background
@@ -146,12 +146,32 @@ snapshot and shall expose:
 - Individual expedition entries with per-character remaining time or completion
   state when expedition data is available.
 - A Preferences action.
+- A Refresh action.
 - A Quit action.
+
+After the user opens Preferences from the main panel and closes the Preferences
+window, the main panel footer actions shall remain operable in the same app
+session.
+
+If a cookie is configured, the Refresh action shall remain enabled even while
+the app is resolving the account or refreshing the Daily Note snapshot.
 
 ### FR-10 Preferences UI
 
 The application shall provide a preferences UI that lets the user update stored
-account configuration.
+account configuration through a single edit-and-save flow for the stored
+cookie.
+
+The preferences UI shall not require a separate control to reload the saved
+cookie into the editor.
+
+Each successful cookie save shall immediately trigger a refresh attempt, even
+when the normalized cookie string is unchanged from the previously stored
+value.
+
+After a successful save, the user shall not need to press the manual Refresh
+action to load the first usable Daily Note snapshot or error state for that
+saved cookie.
 
 ### FR-11 Error Handling
 

@@ -228,8 +228,9 @@ final class NotEnoughResinsUITests: XCTestCase {
         XCTAssertTrue(openPreferences.waitForExistence(timeout: 2))
         openPreferences.click()
 
-        let cookieEditor = app.textViews["preferences.cookieEditor"]
+        let cookieEditor = app.textFields["preferences.cookieEditor"]
         XCTAssertTrue(cookieEditor.waitForExistence(timeout: 2))
+        XCTAssertFalse(app.buttons["preferences.reloadButton"].exists)
 
         cookieEditor.click()
         cookieEditor.typeText("account_id_v2=12345; cookie_token_v2=abcdef")
@@ -242,6 +243,54 @@ final class NotEnoughResinsUITests: XCTestCase {
         app.launch()
 
         XCTAssertTrue(app.staticTexts["Configuration Ready"].waitForExistence(timeout: 2))
+    }
+
+    @MainActor
+    func testPreferencesCanBeReopenedAfterSavingFromMenuBarPanel() {
+        let isolationSuffix = UUID().uuidString
+        let app = makeApp(
+            showsDebugWindow: false,
+            keychainServiceSuffix: isolationSuffix,
+            userDefaultsSuiteSuffix: isolationSuffix
+        )
+
+        app.launch()
+        openMenuBarPanel(in: app)
+
+        guard let openPreferences = waitForAnyElement(
+            panelElementCandidates(in: app, id: "content.openPreferences"),
+            timeout: 2
+        ) else {
+            XCTFail("Preferences button did not appear in the menu bar panel.")
+            return
+        }
+
+        openPreferences.click()
+
+        let cookieEditor = app.textFields["preferences.cookieEditor"]
+        XCTAssertTrue(cookieEditor.waitForExistence(timeout: 2))
+        XCTAssertFalse(app.buttons["preferences.reloadButton"].exists)
+
+        cookieEditor.click()
+        cookieEditor.typeText("account_id_v2=12345; cookie_token_v2=abcdef")
+
+        let saveButton = app.buttons["preferences.saveButton"]
+        XCTAssertTrue(saveButton.waitForExistence(timeout: 2))
+        saveButton.click()
+
+        app.typeKey("w", modifierFlags: .command)
+
+        guard let reopenedPreferences = waitForAnyElement(
+            panelElementCandidates(in: app, id: "content.openPreferences"),
+            timeout: 2
+        ) else {
+            XCTFail("Preferences button disappeared after closing Settings.")
+            return
+        }
+
+        XCTAssertTrue(reopenedPreferences.isHittable)
+        reopenedPreferences.click()
+        XCTAssertTrue(cookieEditor.waitForExistence(timeout: 2))
     }
 
     @MainActor

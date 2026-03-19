@@ -3,7 +3,7 @@
 ## Document Status
 
 - Status: Executed with residual gaps
-- Last updated: 2026-03-15
+- Last updated: 2026-03-19
 - Related requirements: `doc/spec.md`
 - Related design: `doc/design.md`
 
@@ -30,6 +30,88 @@
   redacted.
 
 ## Executed Checks
+
+### 2026-03-19 - Task 11 save-triggered refresh follow-up
+
+- Command:
+  `xcodebuild test -scheme NotEnoughResins -destination 'platform=macOS' -skip-testing:NotEnoughResinsUITests CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY=-`
+- Result: passed
+
+Executed coverage:
+
+- Confirmed the unit-test suite still passes after introducing an explicit
+  save-success event in `PreferencesStore` and moving post-save refresh in
+  `AppState` from stored-cookie diff observation to save-triggered refresh.
+- Added coverage that a first cookie save now reaches `ready` without requiring
+  manual Refresh, and that saving the same normalized cookie twice still
+  triggers a second immediate refresh while reusing the already resolved
+  account.
+
+### 2026-03-19 - Task 11 full-suite verification attempt
+
+- Command:
+  `xcodebuild test -scheme NotEnoughResins -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY=-`
+- Result: interrupted in environment
+
+Observed outcome:
+
+- The command reached `NotEnoughResinsUITests-Runner`, then stopped making
+  forward progress and had to be interrupted manually. The save-triggered
+  follow-up therefore relies on the passing unit-test suite plus the existing
+  documented UI-test residual gap instead of a fully completed UI run in this
+  environment.
+
+### 2026-03-19 - Task 11 preferences-save flow
+
+- Command:
+  `xcodebuild test -scheme NotEnoughResins -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY=- -only-testing:NotEnoughResinsTests`
+- Result: passed
+
+Executed coverage:
+
+- Confirmed the unit-test target still passes after simplifying Preferences to
+  a save-only flow, removing the footer `borderless` button style override,
+  and making `AppState` react to saved-cookie readiness through direct
+  configuration-state observation.
+- Added `AppStateTests` coverage for the saved-cookie transition that used to
+  leave `configurationState` stale, and for the rule that `Refresh` remains
+  available while refresh work is in flight.
+
+### 2026-03-19 - Task 11 UI regression attempt
+
+- Command:
+  `xcodebuild test -scheme NotEnoughResins -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY=- -only-testing:NotEnoughResinsUITests/NotEnoughResinsUITests/testPreferencesSavePersistsAcrossRelaunch -only-testing:NotEnoughResinsUITests/NotEnoughResinsUITests/testPreferencesCanBeReopenedAfterSavingFromMenuBarPanel`
+- Result: failed in environment
+
+Observed outcome:
+
+- The UI-test runner built successfully but exited early before establishing a
+  connection, so the new menu bar panel regression path could not be completed
+  automatically in this environment.
+
+### 2026-03-19 - Task 11 documentation verification
+
+- Command:
+  `markdownlint-cli2 "doc/**/*.md" --config ~/.markdownlint-cli2.jsonc`
+- Result: passed
+
+Executed coverage:
+
+- Confirmed the new task11 artifact plus the updated spec, design, validation,
+  and change-log documents remain clean under the repository Markdown lint
+  configuration.
+
+### 2026-03-19 - Task 11 follow-up documentation verification
+
+- Command:
+  `markdownlint-cli2 "doc/**/*.md" --config ~/.markdownlint-cli2.jsonc`
+- Result: passed
+
+Executed coverage:
+
+- Confirmed the follow-up task11 requirement, design, change-log, and
+  validation deltas for save-triggered refresh parity remain clean under the
+  repository Markdown lint configuration.
 
 ### 2026-03-15 - Task 10 local minute presentation refresh
 

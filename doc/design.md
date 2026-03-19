@@ -3,7 +3,7 @@
 ## Document Status
 
 - Status: Draft
-- Last updated: 2026-03-13
+- Last updated: 2026-03-19
 - Related requirements: `doc/spec.md`
 
 ## Current Baseline
@@ -47,6 +47,10 @@ Replace the default window-first app structure with:
 The main panel opened from the menu bar should present the latest account state,
 refresh status, Preferences, and Quit actions.
 
+Opening Preferences from the panel and then closing the Settings scene must not
+leave the footer actions in a non-interactive state. The footer controls should
+remain hittable without requiring the panel to be recreated.
+
 ### Core Components
 
 #### `PreferencesStore`
@@ -55,6 +59,8 @@ Responsibilities:
 
 - Coordinate secure storage for the cookie value.
 - Publish whether configuration is complete enough to fetch.
+- Publish a save-success event for each successful cookie save, even when the
+  normalized cookie value is unchanged.
 
 Storage choice:
 
@@ -120,6 +126,9 @@ Responsibilities:
 - Combine preferences, network state, the latest in-memory snapshot, and
   derived resin state.
 - Expose view-friendly status for the menu bar and main panel.
+- Start startup discovery from the saved cookie on launch, and trigger
+  post-save refresh from explicit save events instead of from cookie-value
+  diffs.
 
 ## Data Model
 
@@ -255,10 +264,18 @@ The main panel should show:
 - Last successful refresh time.
 - Core Daily Note values relevant to routine play.
 - Preferences action.
+- Refresh action.
 - Quit action.
 
 Version 1 does not need a complex dashboard layout. A compact summary layout is
 enough as long as the information is clearly grouped.
+
+If the user returns from Preferences to the menu bar panel, the same panel
+session should continue to accept footer button clicks.
+
+If secure cookie configuration is present, the Refresh footer control should
+remain enabled instead of becoming disabled during in-flight refresh work. A
+manual refresh may restart the current refresh loop from the configured cookie.
 
 ### Preferences
 
@@ -266,7 +283,24 @@ The preferences UI should allow editing:
 
 - Cookie.
 
-The UI should validate presence before enabling save or refresh.
+The cookie editor is the single source of truth for the currently edited value.
+The Preferences flow is edit and save only; it does not expose a separate
+"reload saved cookie" control.
+
+The UI should validate presence before enabling save.
+The cookie editor should behave like an ordinary single-line text field. When
+the cookie is longer than the visible width, the field should keep the active
+insertion point visible using standard field behavior instead of a custom
+multiline editor.
+
+A successful save should trigger the same immediate refresh entrypoint used by
+the manual Refresh footer action. This post-save refresh is driven by an
+explicit save-success event rather than by detecting whether the stored cookie
+string changed.
+
+Startup behavior stays separate: launch-time restore still starts the initial
+discovery flow through the startup refresh path, while in-session saves use the
+manual-refresh path.
 
 ## Error Handling Policy
 

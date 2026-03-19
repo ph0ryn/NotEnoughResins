@@ -5,6 +5,7 @@ struct PreferencesView: View {
 
     @State private var cookieDraft: String
     @State private var feedbackMessage: String?
+    @FocusState private var isFocused: Bool
 
     init(store: PreferencesStore) {
         self.store = store
@@ -14,9 +15,13 @@ struct PreferencesView: View {
     var body: some View {
         Form {
             Section("HoYoLAB Cookie") {
-                TextEditor(text: $cookieDraft)
+                TextField("Paste the HoYoLAB cookie", text: $cookieDraft, prompt: Text("_HYVUUID="))
                     .font(.system(.body, design: .monospaced))
-                    .frame(minHeight: 160)
+                    .textFieldStyle(.roundedBorder)
+                    .focused($isFocused)
+                    .onSubmit {
+                        isFocused = false
+                    }
                     .accessibilityIdentifier("preferences.cookieEditor")
 
                 Text("The cookie is stored in Keychain and is not written to UserDefaults.")
@@ -30,16 +35,10 @@ struct PreferencesView: View {
                 }
 
                 HStack {
-                    Button("Reload Saved Cookie") {
-                        store.reloadFromStorage()
-                        cookieDraft = store.storedCookie
-                        feedbackMessage = nil
-                    }
-                    .accessibilityIdentifier("preferences.reloadButton")
-
                     Spacer()
 
                     Button("Save Cookie") {
+                        isFocused = false
                         saveCookie()
                     }
                     .disabled(cookieDraft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
@@ -59,11 +58,11 @@ struct PreferencesView: View {
         do {
             try store.saveCookie(cookieDraft)
             cookieDraft = store.storedCookie
-            feedbackMessage = "Cookie saved to Keychain."
+            feedbackMessage = "Successfully saved cookie to Keychain."
         } catch let error as PreferencesStore.SaveError {
             feedbackMessage = error.localizedDescription
         } catch {
-            feedbackMessage = "The HoYoLAB cookie could not be saved."
+            feedbackMessage = "Failed to load saved cookie from Keychain."
         }
     }
 }

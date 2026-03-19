@@ -62,7 +62,6 @@ struct ContentView: View {
                 }
                 .accessibilityLabel("Preferences")
                 .accessibilityIdentifier("content.openPreferences")
-                .buttonStyle(.borderless)
 
                 Spacer()
 
@@ -75,7 +74,6 @@ struct ContentView: View {
                 .accessibilityLabel("Refresh")
                 .accessibilityIdentifier("content.refresh")
                 .help("Refresh")
-                .buttonStyle(.borderless)
                 .disabled(appState.canRefreshNow == false)
 
                 Button {

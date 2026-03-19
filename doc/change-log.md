@@ -1,5 +1,46 @@
 # NotEnoughResins Change Log
 
+## 2026-03-19
+
+### Planning - Task 11 save-triggered refresh parity
+
+- Extended `doc/task/task_11.md` so the same follow-up task now also requires
+  post-save refresh to run on every successful cookie save, including
+  same-cookie saves that would otherwise be dropped by stored-cookie
+  deduplication.
+- Updated `doc/spec.md` and `doc/design.md` so successful cookie saves now
+  explicitly require an immediate refresh attempt without a manual Refresh
+  click, while keeping startup refresh behavior unchanged.
+
+### Task 11 - Restore footer actions after saving Preferences and remove redundant cookie reload
+
+- Removed the `borderless` button style from the main-panel `Preferences` and
+  `Refresh` footer controls so the panel keeps accepting clicks after the
+  Settings window closes.
+- Updated `AppState` to observe `PreferencesStore.configurationState`
+  directly, so saving a cookie no longer leaves the app stuck in a stale
+  configuration-needed state because of `@Published` delivery order.
+- Changed footer refresh availability so `Refresh` stays enabled whenever a
+  cookie is configured, even while the app is already resolving the account or
+  refreshing the Daily Note snapshot.
+- Added an explicit save-success revision in `PreferencesStore` and rewired
+  `AppState` to trigger post-save refresh from that event, so every successful
+  cookie save now starts an immediate refresh attempt even when the normalized
+  cookie value did not change.
+- Removed `Reload Saved Cookie` from Preferences so the cookie flow is edit and
+  save only.
+- Extended UI coverage to assert that the removed reload control no longer
+  appears and that Preferences can be reopened after saving from the real menu
+  bar panel.
+
+### Planning - Task 11 footer actions and preferences-save flow
+
+- Added `doc/task/task_11.md` to scope the follow-up task that restores main
+  panel footer interaction after a Preferences save and close cycle.
+- Updated `doc/spec.md` and `doc/design.md` so the footer-action stability
+  requirement and the save-only Preferences flow are part of the upstream SDD
+  contract for Task 11.
+
 ## 2026-03-15
 
 ### Task 10 - Drive AppPresentation with local minute updates

@@ -56,16 +56,18 @@ final class AppState: ObservableObject {
     }
 
     private func bind(minuteTicker: AnyPublisher<Date, Never>) {
-        preferencesStore.$storedCookie
+        preferencesStore.$configurationState
             .dropFirst()
             .removeDuplicates()
-            .sink { [weak self] _ in
-                guard let self else {
-                    return
-                }
+            .sink { [weak self] configurationState in
+                self?.configurationState = configurationState
+            }
+            .store(in: &cancellables)
 
-                configurationState = preferencesStore.configurationState
-                restartRefreshIfNeeded()
+        preferencesStore.$saveRevision
+            .dropFirst()
+            .sink { [weak self] _ in
+                self?.refreshFromSavedCookie()
             }
             .store(in: &cancellables)
 
@@ -115,6 +117,15 @@ final class AppState: ObservableObject {
         refreshCoordinator.start(cookie: preferencesStore.cookie)
     }
 
+    private func refreshFromSavedCookie() {
+        guard refreshEnabled else {
+            refreshPhase = .idle
+            return
+        }
+
+        refreshCoordinator.refreshNow(cookie: preferencesStore.cookie)
+    }
+
     func derivedResinState(at date: Date? = nil) -> DerivedResinState? {
         let effectiveDate = date ?? currentPresentationDate()
 
@@ -130,36 +141,15 @@ final class AppState: ObservableObject {
     }
 
     func refreshNow() {
-        guard configurationState == .configurationReady else {
-            return
-        }
-
-        if case .discoveringAccount = refreshPhase {
-            return
-        }
-
-        if case .refreshingDailyNote = refreshPhase {
-            return
-        }
-
-        guard refreshEnabled else {
-            return
-        }
-
-        refreshCoordinator.refreshNow(cookie: preferencesStore.cookie)
+        refreshFromSavedCookie()
     }
 
     var canRefreshNow: Bool {
-        guard configurationState == .configurationReady else {
+        guard preferencesStore.cookie != nil else {
             return false
         }
 
-        switch refreshPhase {
-        case .discoveringAccount, .refreshingDailyNote:
-            return false
-        default:
-            return true
-        }
+        return refreshEnabled
     }
 
     var presentation: AppPresentation {
