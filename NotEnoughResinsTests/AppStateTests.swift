@@ -83,6 +83,85 @@ struct AppStateTests {
         #expect(accountResolver.cookies.count == 1)
         #expect(dailyNoteService.requests.count == 1)
     }
+
+    @Test
+    func savingCookieUpdatesConfigurationStateAndEnablesRefresh() async throws {
+        let initialFetchAt = Date(timeIntervalSince1970: 1_741_800_000)
+        let refreshClock = ManualRefreshClock(now: initialFetchAt)
+        let account = ResolvedAccount(
+            accountIdV2: "12345",
+            server: "os_asia",
+            roleId: "987654321",
+            nickname: "Traveler",
+            level: 60
+        )
+        let preferencesStore = PreferencesStore(
+            keychain: AppStateTestKeychainStore(initialValues: [:])
+        )
+        let appState = AppState(
+            preferencesStore: preferencesStore,
+            refreshCoordinator: RefreshCoordinator(
+                accountResolver: MockAccountResolver(result: .success(account)),
+                dailyNoteService: MockDailyNoteService(
+                    results: [
+                        .success(
+                            makeDailyNoteSnapshot(
+                                fetchedAt: initialFetchAt,
+                                currentResin: 160,
+                                resinRecoveryTimeSeconds: 19_200
+                            )
+                        ),
+                    ]
+                ),
+                clock: refreshClock
+            ),
+            refreshEnabled: true,
+            minuteTicker: Empty<Date, Never>().eraseToAnyPublisher(),
+            nowProvider: { initialFetchAt }
+        )
+
+        #expect(appState.configurationState == .needsConfiguration)
+        #expect(appState.canRefreshNow == false)
+
+        try preferencesStore.saveCookie("account_id_v2=12345; cookie_token_v2=abcdef")
+        await Task.yield()
+
+        #expect(appState.configurationState == .configurationReady)
+        #expect(appState.canRefreshNow == true)
+    }
+
+    @Test
+    func refreshRemainsEnabledWhileRefreshWorkIsInProgress() {
+        let preferencesStore = PreferencesStore(
+            keychain: AppStateTestKeychainStore(
+                initialValues: [
+                    PreferencesStore.cookieStorageAccount: "account_id_v2=12345; cookie_token_v2=abcdef",
+                ]
+            )
+        )
+        let appState = AppState(
+            preferencesStore: preferencesStore,
+            refreshCoordinator: RefreshCoordinator(
+                accountResolver: MockAccountResolver(result: .failure(.authFailure)),
+                dailyNoteService: MockDailyNoteService(results: []),
+                clock: ManualRefreshClock(now: Date())
+            ),
+            refreshEnabled: true,
+            minuteTicker: Empty<Date, Never>().eraseToAnyPublisher()
+        )
+
+        appState.applyDebugState(
+            configurationState: .configurationReady,
+            refreshPhase: .discoveringAccount,
+            resolvedAccount: nil,
+            latestSnapshot: nil,
+            derivedResinState: nil,
+            lastSuccessfulFetchAt: nil,
+            trackingState: .empty
+        )
+
+        #expect(appState.canRefreshNow == true)
+    }
 }
 
 private final class CurrentDateBox {
@@ -94,7 +173,7 @@ private final class CurrentDateBox {
 }
 
 private final class AppStateTestKeychainStore: KeychainStoring {
-    private let values: [String: String]
+    private var values: [String: String]
 
     init(initialValues: [String: String]) {
         values = initialValues
@@ -104,5 +183,7 @@ private final class AppStateTestKeychainStore: KeychainStoring {
         values[account]
     }
 
-    func upsertString(_: String, for _: String) throws {}
+    func upsertString(_ value: String, for account: String) throws {
+        values[account] = value
+    }
 }

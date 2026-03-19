@@ -56,6 +56,14 @@ final class AppState: ObservableObject {
     }
 
     private func bind(minuteTicker: AnyPublisher<Date, Never>) {
+        preferencesStore.$configurationState
+            .dropFirst()
+            .removeDuplicates()
+            .sink { [weak self] configurationState in
+                self?.configurationState = configurationState
+            }
+            .store(in: &cancellables)
+
         preferencesStore.$storedCookie
             .dropFirst()
             .removeDuplicates()
@@ -64,7 +72,6 @@ final class AppState: ObservableObject {
                     return
                 }
 
-                configurationState = preferencesStore.configurationState
                 restartRefreshIfNeeded()
             }
             .store(in: &cancellables)
@@ -130,15 +137,7 @@ final class AppState: ObservableObject {
     }
 
     func refreshNow() {
-        guard configurationState == .configurationReady else {
-            return
-        }
-
-        if case .discoveringAccount = refreshPhase {
-            return
-        }
-
-        if case .refreshingDailyNote = refreshPhase {
+        guard let cookie = preferencesStore.cookie else {
             return
         }
 
@@ -146,20 +145,15 @@ final class AppState: ObservableObject {
             return
         }
 
-        refreshCoordinator.refreshNow(cookie: preferencesStore.cookie)
+        refreshCoordinator.refreshNow(cookie: cookie)
     }
 
     var canRefreshNow: Bool {
-        guard configurationState == .configurationReady else {
+        guard preferencesStore.cookie != nil else {
             return false
         }
 
-        switch refreshPhase {
-        case .discoveringAccount, .refreshingDailyNote:
-            return false
-        default:
-            return true
-        }
+        return refreshEnabled
     }
 
     var presentation: AppPresentation {
