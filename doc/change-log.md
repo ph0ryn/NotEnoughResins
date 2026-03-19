@@ -2,6 +2,17 @@
 
 ## 2026-03-19
 
+### Task 11 - Restore footer actions after saving Preferences and remove redundant cookie reload
+
+- Removed the `borderless` button style from the main-panel `Preferences` and
+  `Refresh` footer controls so the panel keeps accepting clicks after the
+  Settings window closes.
+- Removed `Reload Saved Cookie` from Preferences so the cookie flow is edit and
+  save only.
+- Extended UI coverage to assert that the removed reload control no longer
+  appears and that Preferences can be reopened after saving from the real menu
+  bar panel.
+
 ### Planning - Task 11 footer actions and preferences-save flow
 
 - Added `doc/task/task_11.md` to scope the follow-up task that restores main

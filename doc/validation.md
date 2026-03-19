@@ -3,7 +3,7 @@
 ## Document Status
 
 - Status: Executed with residual gaps
-- Last updated: 2026-03-15
+- Last updated: 2026-03-19
 - Related requirements: `doc/spec.md`
 - Related design: `doc/design.md`
 
@@ -30,6 +30,41 @@
   redacted.
 
 ## Executed Checks
+
+### 2026-03-19 - Task 11 preferences-save flow
+
+- Command:
+  `xcodebuild test -scheme NotEnoughResins -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY=- -only-testing:NotEnoughResinsTests`
+- Result: passed
+
+Executed coverage:
+
+- Confirmed the unit-test target still passes after simplifying Preferences to
+  a save-only flow and removing the footer `borderless` button style override.
+
+### 2026-03-19 - Task 11 UI regression attempt
+
+- Command:
+  `xcodebuild test -scheme NotEnoughResins -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY=- -only-testing:NotEnoughResinsUITests/NotEnoughResinsUITests/testPreferencesSavePersistsAcrossRelaunch -only-testing:NotEnoughResinsUITests/NotEnoughResinsUITests/testPreferencesCanBeReopenedAfterSavingFromMenuBarPanel`
+- Result: failed in environment
+
+Observed outcome:
+
+- The UI-test runner built successfully but exited early before establishing a
+  connection, so the new menu bar panel regression path could not be completed
+  automatically in this environment.
+
+### 2026-03-19 - Task 11 documentation verification
+
+- Command:
+  `markdownlint-cli2 "doc/**/*.md" --config ~/.markdownlint-cli2.jsonc`
+- Result: passed
+
+Executed coverage:
+
+- Confirmed the new task11 artifact plus the updated spec, design, validation,
+  and change-log documents remain clean under the repository Markdown lint
+  configuration.
 
 ### 2026-03-15 - Task 10 local minute presentation refresh
 
