@@ -228,7 +228,7 @@ final class NotEnoughResinsUITests: XCTestCase {
         XCTAssertTrue(openPreferences.waitForExistence(timeout: 2))
         openPreferences.click()
 
-        let cookieEditor = app.textViews["preferences.cookieEditor"]
+        let cookieEditor = app.textFields["preferences.cookieEditor"]
         XCTAssertTrue(cookieEditor.waitForExistence(timeout: 2))
         XCTAssertFalse(app.buttons["preferences.reloadButton"].exists)
 
@@ -267,7 +267,7 @@ final class NotEnoughResinsUITests: XCTestCase {
 
         openPreferences.click()
 
-        let cookieEditor = app.textViews["preferences.cookieEditor"]
+        let cookieEditor = app.textFields["preferences.cookieEditor"]
         XCTAssertTrue(cookieEditor.waitForExistence(timeout: 2))
         XCTAssertFalse(app.buttons["preferences.reloadButton"].exists)
 
