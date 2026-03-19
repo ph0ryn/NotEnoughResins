@@ -3,7 +3,7 @@
 ## Document Status
 
 - Status: Draft
-- Last updated: 2026-03-13
+- Last updated: 2026-03-19
 - Source draft: `temp-spec.md`
 
 ## Background
@@ -148,10 +148,18 @@ snapshot and shall expose:
 - A Preferences action.
 - A Quit action.
 
+After the user opens Preferences from the main panel and closes the Preferences
+window, the main panel footer actions shall remain operable in the same app
+session.
+
 ### FR-10 Preferences UI
 
 The application shall provide a preferences UI that lets the user update stored
-account configuration.
+account configuration through a single edit-and-save flow for the stored
+cookie.
+
+The preferences UI shall not require a separate control to reload the saved
+cookie into the editor.
 
 ### FR-11 Error Handling
 

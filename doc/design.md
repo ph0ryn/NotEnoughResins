@@ -3,7 +3,7 @@
 ## Document Status
 
 - Status: Draft
-- Last updated: 2026-03-13
+- Last updated: 2026-03-19
 - Related requirements: `doc/spec.md`
 
 ## Current Baseline
@@ -46,6 +46,10 @@ Replace the default window-first app structure with:
 
 The main panel opened from the menu bar should present the latest account state,
 refresh status, Preferences, and Quit actions.
+
+Opening Preferences from the panel and then closing the Settings scene must not
+leave the footer actions in a non-interactive state. The footer controls should
+remain hittable without requiring the panel to be recreated.
 
 ### Core Components
 
@@ -260,13 +264,20 @@ The main panel should show:
 Version 1 does not need a complex dashboard layout. A compact summary layout is
 enough as long as the information is clearly grouped.
 
+If the user returns from Preferences to the menu bar panel, the same panel
+session should continue to accept footer button clicks.
+
 ### Preferences
 
 The preferences UI should allow editing:
 
 - Cookie.
 
-The UI should validate presence before enabling save or refresh.
+The cookie editor is the single source of truth for the currently edited value.
+The Preferences flow is edit and save only; it does not expose a separate
+"reload saved cookie" control.
+
+The UI should validate presence before enabling save.
 
 ## Error Handling Policy
 

@@ -1,5 +1,15 @@
 # NotEnoughResins Change Log
 
+## 2026-03-19
+
+### Planning - Task 11 footer actions and preferences-save flow
+
+- Added `doc/task/task_11.md` to scope the follow-up task that restores main
+  panel footer interaction after a Preferences save and close cycle.
+- Updated `doc/spec.md` and `doc/design.md` so the footer-action stability
+  requirement and the save-only Preferences flow are part of the upstream SDD
+  contract for Task 11.
+
 ## 2026-03-15
 
 ### Task 10 - Drive AppPresentation with local minute updates
