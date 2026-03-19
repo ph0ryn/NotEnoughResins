@@ -3,6 +3,13 @@ import SwiftUI
 struct MenuBarStatusLabel: View {
     let menuBarState: AppPresentation.MenuBarState
 
+    let icon: NSImage = {
+        let ratio = $0.size.height / $0.size.width
+        $0.size.height = 22
+        $0.size.width = 22 / ratio
+        return $0
+    }(NSImage(named: "MenuBarIcon")!)
+
     var body: some View {
         HStack(spacing: 6) {
             switch menuBarState {
@@ -14,11 +21,10 @@ struct MenuBarStatusLabel: View {
                 Text("Loading")
             case let .normal(current, max):
                 Text("\(current) / \(max)")
-                Image(systemName: "drop.fill")
+                Image(nsImage: icon)
             case let .overflow(wasted):
                 Image(systemName: "trash.fill")
                 Text("\(wasted)")
-                Image(systemName: "drop.fill")
             case .authError:
                 Image(systemName: "person.crop.circle.badge.exclamationmark.fill")
                 Text("Auth")
