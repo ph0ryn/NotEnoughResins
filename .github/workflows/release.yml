@@ -22,13 +22,13 @@ jobs:
           sudo xcode-select -s /Applications/Xcode_26.0.1.app
           ./build.sh
 
-      - run: zip -r NotEnoughResins.zip build/NotEnoughResins.app
-
-      - name: Archive build
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: build
-          path: NotEnoughResins.zip
+          name: NotEnoughResins
+          path: build/NotEnoughResins.app
+
+      - run: zip -r NotEnoughResins.zip build/NotEnoughResins.app
 
       - uses: softprops/action-gh-release@v2
         with:
