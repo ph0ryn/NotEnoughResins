@@ -296,6 +296,9 @@ If the direct SwiftUI control does not preserve reliable caret placement for
 long cookie values, the implementation may use an AppKit-backed single-line
 field as long as the user-facing behavior still matches a normal macOS text
 field.
+Pressing `Return` or clicking elsewhere in the Preferences window should end
+cookie-field editing so the insertion caret does not remain active after the
+user leaves the field.
 
 A successful save should trigger the same immediate refresh entrypoint used by
 the manual Refresh footer action. This post-save refresh is driven by an
