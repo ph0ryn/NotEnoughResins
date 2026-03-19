@@ -7,6 +7,12 @@
 - Removed the `borderless` button style from the main-panel `Preferences` and
   `Refresh` footer controls so the panel keeps accepting clicks after the
   Settings window closes.
+- Updated `AppState` to observe `PreferencesStore.configurationState`
+  directly, so saving a cookie no longer leaves the app stuck in a stale
+  configuration-needed state because of `@Published` delivery order.
+- Changed footer refresh availability so `Refresh` stays enabled whenever a
+  cookie is configured, even while the app is already resolving the account or
+  refreshing the Daily Note snapshot.
 - Removed `Reload Saved Cookie` from Preferences so the cookie flow is edit and
   save only.
 - Extended UI coverage to assert that the removed reload control no longer

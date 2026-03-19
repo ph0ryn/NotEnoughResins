@@ -40,7 +40,12 @@
 Executed coverage:
 
 - Confirmed the unit-test target still passes after simplifying Preferences to
-  a save-only flow and removing the footer `borderless` button style override.
+  a save-only flow, removing the footer `borderless` button style override,
+  and making `AppState` react to saved-cookie readiness through direct
+  configuration-state observation.
+- Added `AppStateTests` coverage for the saved-cookie transition that used to
+  leave `configurationState` stale, and for the rule that `Refresh` remains
+  available while refresh work is in flight.
 
 ### 2026-03-19 - Task 11 UI regression attempt
 
