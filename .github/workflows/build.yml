@@ -18,6 +18,8 @@ jobs:
 
       - run: ./build.sh
 
+      - run: zip -r NotEnoughResins.zip build/NotEnoughResins.app
+
       - uses: softprops/action-gh-release@v2
         with:
-          files: build/NotEnoughResins.app
+          files: NotEnoughResins.zip
