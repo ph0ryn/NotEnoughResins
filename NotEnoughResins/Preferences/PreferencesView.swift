@@ -102,9 +102,15 @@ private struct CookieTextField: NSViewRepresentable {
 
     final class Coordinator: NSObject, NSTextFieldDelegate {
         private let text: Binding<String>
+        private var clickMonitor: Any?
+        private weak var monitoredWindow: NSWindow?
 
         init(text: Binding<String>) {
             self.text = text
+        }
+
+        deinit {
+            removeClickMonitor()
         }
 
         func controlTextDidChange(_ notification: Notification) {
@@ -115,7 +121,34 @@ private struct CookieTextField: NSViewRepresentable {
             text.wrappedValue = textField.stringValue
         }
 
+        func controlTextDidEndEditing(_ notification: Notification) {
+            guard let textField = notification.object as? NSTextField else {
+                return
+            }
+
+            scheduleBlurIfStillFocused(afterCurrentEventFor: textField)
+        }
+
+        func control(
+            _ control: NSControl,
+            textView _: NSTextView,
+            doCommandBy commandSelector: Selector
+        ) -> Bool {
+            guard
+                commandSelector == #selector(NSResponder.insertNewline(_:)),
+                let textField = control as? NSTextField
+            else {
+                return false
+            }
+
+            text.wrappedValue = textField.stringValue
+            scheduleBlurIfStillFocused(afterCurrentEventFor: textField)
+            return true
+        }
+
         func syncExternalText(_ externalText: String, into textField: NSTextField) {
+            installClickMonitor(for: textField)
+
             guard textField.stringValue != externalText else {
                 return
             }
@@ -126,6 +159,68 @@ private struct CookieTextField: NSViewRepresentable {
             if let selectedRanges, let editor = textField.currentEditor() as? NSTextView {
                 editor.selectedRanges = selectedRanges
             }
+        }
+
+        private func installClickMonitor(for textField: NSTextField) {
+            guard let window = textField.window else {
+                removeClickMonitor()
+                return
+            }
+
+            guard monitoredWindow !== window || clickMonitor == nil else {
+                return
+            }
+
+            removeClickMonitor()
+            monitoredWindow = window
+
+            clickMonitor = NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown]) {
+                [weak self, weak textField, weak window] event in
+                guard let self, let textField, let window, event.window === window else {
+                    return event
+                }
+
+                guard let contentView = window.contentView else {
+                    return event
+                }
+
+                let location = contentView.convert(event.locationInWindow, from: nil)
+                let hitView = contentView.hitTest(location)
+
+                if let hitView, hitView.isDescendant(of: textField) {
+                    return event
+                }
+
+                if window.firstResponder === textField.currentEditor() || window.firstResponder === textField {
+                    self.scheduleBlurIfStillFocused(afterCurrentEventFor: textField)
+                }
+
+                return event
+            }
+        }
+
+        private func scheduleBlurIfStillFocused(afterCurrentEventFor textField: NSTextField) {
+            DispatchQueue.main.async { [weak textField] in
+                guard let textField, let window = textField.window else {
+                    return
+                }
+
+                if window.firstResponder === textField.currentEditor() || window.firstResponder === textField {
+                    if let contentView = window.contentView {
+                        window.makeFirstResponder(contentView)
+                    } else {
+                        window.makeFirstResponder(nil)
+                    }
+                }
+            }
+        }
+
+        private func removeClickMonitor() {
+            if let clickMonitor {
+                NSEvent.removeMonitor(clickMonitor)
+                self.clickMonitor = nil
+            }
+            monitoredWindow = nil
         }
     }
 }
