@@ -23,6 +23,10 @@
 - Changed footer refresh availability so `Refresh` stays enabled whenever a
   cookie is configured, even while the app is already resolving the account or
   refreshing the Daily Note snapshot.
+- Added an explicit save-success revision in `PreferencesStore` and rewired
+  `AppState` to trigger post-save refresh from that event, so every successful
+  cookie save now starts an immediate refresh attempt even when the normalized
+  cookie value did not change.
 - Removed `Reload Saved Cookie` from Preferences so the cookie flow is edit and
   save only.
 - Extended UI coverage to assert that the removed reload control no longer
