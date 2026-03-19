@@ -146,11 +146,15 @@ snapshot and shall expose:
 - Individual expedition entries with per-character remaining time or completion
   state when expedition data is available.
 - A Preferences action.
+- A Refresh action.
 - A Quit action.
 
 After the user opens Preferences from the main panel and closes the Preferences
 window, the main panel footer actions shall remain operable in the same app
 session.
+
+If a cookie is configured, the Refresh action shall remain enabled even while
+the app is resolving the account or refreshing the Daily Note snapshot.
 
 ### FR-10 Preferences UI
 

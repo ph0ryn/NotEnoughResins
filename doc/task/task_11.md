@@ -23,6 +23,7 @@ and simplify Preferences so the cookie workflow is save-only.
 - After the user opens Preferences from the main panel, saves a cookie, and
   closes the Settings window, the main panel footer actions remain operable in
   the same app session.
+- If a cookie is configured, the `Refresh` footer action remains enabled.
 - Preferences no longer shows a `Reload Saved Cookie` control.
 - Saving a non-empty cookie still writes the normalized value to Keychain and
   leaves Preferences in a configuration-ready state.
@@ -38,6 +39,14 @@ and simplify Preferences so the cookie workflow is save-only.
 
 - Keep the task outcome-driven: fix the footer interaction regression without
   expanding scope into unrelated menu bar or Keychain work.
+- Investigation on 2026-03-19 found that `AppState` only reacted to
+  `PreferencesStore.$storedCookie`, while `PreferencesStore.saveCookie(_:)`
+  publishes the cookie before it updates `configurationState`. The fix should
+  make `AppState` react to configuration-state changes directly instead of
+  depending on the publish order of a different property.
+- Treat refresh availability as a configured-cookie concern. Once a cookie is
+  present, the footer `Refresh` control should stay enabled even if a refresh
+  loop is already in flight.
 - Treat the Preferences editor contents as the only in-window editable source
   of truth. If the stored cookie changes, the editor may still reflect the
   published value through the existing store binding.

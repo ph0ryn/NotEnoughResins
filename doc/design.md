@@ -259,6 +259,7 @@ The main panel should show:
 - Last successful refresh time.
 - Core Daily Note values relevant to routine play.
 - Preferences action.
+- Refresh action.
 - Quit action.
 
 Version 1 does not need a complex dashboard layout. A compact summary layout is
@@ -266,6 +267,10 @@ enough as long as the information is clearly grouped.
 
 If the user returns from Preferences to the menu bar panel, the same panel
 session should continue to accept footer button clicks.
+
+If secure cookie configuration is present, the Refresh footer control should
+remain enabled instead of becoming disabled during in-flight refresh work. A
+manual refresh may restart the current refresh loop from the configured cookie.
 
 ### Preferences
 
