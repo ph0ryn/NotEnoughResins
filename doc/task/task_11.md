@@ -18,6 +18,8 @@ workflow is save-only.
   including saves whose normalized cookie matches the existing stored value.
 - Remove `Reload Saved Cookie` from Preferences and any directly related code,
   copy, and automated coverage.
+- Keep the Preferences cookie editor non-scrollable so it does not trap inner
+  scroll interaction.
 - Keep the current Keychain persistence, save path, and startup read behavior
   unchanged.
 
@@ -32,6 +34,8 @@ workflow is save-only.
 - Saving the same normalized cookie value again still triggers an immediate
   refresh attempt.
 - Preferences no longer shows a `Reload Saved Cookie` control.
+- The Preferences cookie editor no longer scrolls internally while editing the
+  stored cookie text.
 - Saving a non-empty cookie still writes the normalized value to Keychain and
   leaves Preferences in a configuration-ready state.
 - Existing startup cookie loading behavior remains unchanged.
@@ -64,6 +68,8 @@ workflow is save-only.
 - Treat the Preferences editor contents as the only in-window editable source
   of truth. If the stored cookie changes, the editor may still reflect the
   published value through the existing store binding.
+- Keep the editor behavior simple: multiline editing is still required, but
+  the field should not introduce a nested scroll area inside Preferences.
 - Preserve current save validation and feedback messaging unless a small copy
   adjustment is required to keep the simplified Preferences flow coherent.
 
@@ -80,6 +86,7 @@ workflow is save-only.
 - Manual: save the same cookie again and confirm an immediate refresh runs
   again.
 - Manual: confirm Preferences no longer shows `Reload Saved Cookie`.
+- Manual: confirm the cookie editor no longer scrolls internally while editing.
 
 ## References
 
