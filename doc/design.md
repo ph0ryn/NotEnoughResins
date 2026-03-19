@@ -59,6 +59,8 @@ Responsibilities:
 
 - Coordinate secure storage for the cookie value.
 - Publish whether configuration is complete enough to fetch.
+- Publish a save-success event for each successful cookie save, even when the
+  normalized cookie value is unchanged.
 
 Storage choice:
 
@@ -124,6 +126,9 @@ Responsibilities:
 - Combine preferences, network state, the latest in-memory snapshot, and
   derived resin state.
 - Expose view-friendly status for the menu bar and main panel.
+- Start startup discovery from the saved cookie on launch, and trigger
+  post-save refresh from explicit save events instead of from cookie-value
+  diffs.
 
 ## Data Model
 
@@ -283,6 +288,15 @@ The Preferences flow is edit and save only; it does not expose a separate
 "reload saved cookie" control.
 
 The UI should validate presence before enabling save.
+
+A successful save should trigger the same immediate refresh entrypoint used by
+the manual Refresh footer action. This post-save refresh is driven by an
+explicit save-success event rather than by detecting whether the stored cookie
+string changed.
+
+Startup behavior stays separate: launch-time restore still starts the initial
+discovery flow through the startup refresh path, while in-session saves use the
+manual-refresh path.
 
 ## Error Handling Policy
 

@@ -165,6 +165,14 @@ cookie.
 The preferences UI shall not require a separate control to reload the saved
 cookie into the editor.
 
+Each successful cookie save shall immediately trigger a refresh attempt, even
+when the normalized cookie string is unchanged from the previously stored
+value.
+
+After a successful save, the user shall not need to press the manual Refresh
+action to load the first usable Daily Note snapshot or error state for that
+saved cookie.
+
 ### FR-11 Error Handling
 
 If the API request fails, returns invalid data, or indicates that the cookie is

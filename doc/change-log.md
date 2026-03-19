@@ -2,6 +2,16 @@
 
 ## 2026-03-19
 
+### Planning - Task 11 save-triggered refresh parity
+
+- Extended `doc/task/task_11.md` so the same follow-up task now also requires
+  post-save refresh to run on every successful cookie save, including
+  same-cookie saves that would otherwise be dropped by stored-cookie
+  deduplication.
+- Updated `doc/spec.md` and `doc/design.md` so successful cookie saves now
+  explicitly require an immediate refresh attempt without a manual Refresh
+  click, while keeping startup refresh behavior unchanged.
+
 ### Task 11 - Restore footer actions after saving Preferences and remove redundant cookie reload
 
 - Removed the `borderless` button style from the main-panel `Preferences` and

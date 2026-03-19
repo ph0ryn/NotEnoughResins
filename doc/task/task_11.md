@@ -7,12 +7,15 @@ P1
 ## Goal
 
 Restore reliable footer interaction after a Preferences save and close cycle,
-and simplify Preferences so the cookie workflow is save-only.
+stabilize post-save refresh behavior, and simplify Preferences so the cookie
+workflow is save-only.
 
 ## Scope
 
 - Investigate and fix the footer-action regression in the menu bar panel after
   the user saves a cookie in Preferences and closes the Settings window.
+- Ensure every successful cookie save immediately triggers a refresh attempt,
+  including saves whose normalized cookie matches the existing stored value.
 - Remove `Reload Saved Cookie` from Preferences and any directly related code,
   copy, and automated coverage.
 - Keep the current Keychain persistence, save path, and startup read behavior
@@ -24,6 +27,10 @@ and simplify Preferences so the cookie workflow is save-only.
   closes the Settings window, the main panel footer actions remain operable in
   the same app session.
 - If a cookie is configured, the `Refresh` footer action remains enabled.
+- Saving a cookie from a no-cookie state reaches a usable Daily Note result or
+  error state without requiring the manual `Refresh` action.
+- Saving the same normalized cookie value again still triggers an immediate
+  refresh attempt.
 - Preferences no longer shows a `Reload Saved Cookie` control.
 - Saving a non-empty cookie still writes the normalized value to Keychain and
   leaves Preferences in a configuration-ready state.
@@ -44,9 +51,16 @@ and simplify Preferences so the cookie workflow is save-only.
   publishes the cookie before it updates `configurationState`. The fix should
   make `AppState` react to configuration-state changes directly instead of
   depending on the publish order of a different property.
+- Follow-up investigation on 2026-03-19 found that same-cookie saves were also
+  dropped by `PreferencesStore.$storedCookie.removeDuplicates()`, so
+  post-save refresh cannot be modeled as a stored-cookie diff.
 - Treat refresh availability as a configured-cookie concern. Once a cookie is
   present, the footer `Refresh` control should stay enabled even if a refresh
   loop is already in flight.
+- Keep startup refresh and post-save refresh distinct. Startup may continue to
+  use the discovery-first path, but successful in-session saves should trigger
+  the same coordinator entrypoint as the manual footer refresh so the refresh
+  behavior is symmetric.
 - Treat the Preferences editor contents as the only in-window editable source
   of truth. If the stored cookie changes, the editor may still reflect the
   published value through the existing store binding.
@@ -60,6 +74,11 @@ and simplify Preferences so the cookie workflow is save-only.
 - Manual: open Preferences from the menu bar panel, save a cookie, close
   Preferences, and confirm `Preferences`, `Refresh`, and `Quit` remain
   clickable.
+- Manual: launch without a saved cookie, save a cookie, and confirm the app
+  reaches a usable Daily Note state or explicit error state without pressing
+  the footer `Refresh` button.
+- Manual: save the same cookie again and confirm an immediate refresh runs
+  again.
 - Manual: confirm Preferences no longer shows `Reload Saved Cookie`.
 
 ## References
