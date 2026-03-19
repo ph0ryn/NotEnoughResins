@@ -288,9 +288,10 @@ The Preferences flow is edit and save only; it does not expose a separate
 "reload saved cookie" control.
 
 The UI should validate presence before enabling save.
-The cookie editor should not capture its own scroll interaction; the field
-should behave as a non-scrollable multiline editor instead of embedding an
-inner scroll view for the pasted cookie text.
+The cookie editor should behave like an ordinary single-line text field. When
+the cookie is longer than the visible width, the field should keep the active
+insertion point visible using standard field behavior instead of a custom
+multiline editor.
 
 A successful save should trigger the same immediate refresh entrypoint used by
 the manual Refresh footer action. This post-save refresh is driven by an
