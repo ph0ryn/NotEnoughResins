@@ -20,6 +20,7 @@ struct AppPresentationTests {
 
         #expect(presentation.menuBarState == .needsConfiguration)
         #expect(presentation.title == "Configuration Needed")
+        #expect(presentation.icon == .system("exclamationmark.triangle.fill"))
         #expect(presentation.panel == nil)
     }
 
@@ -60,6 +61,7 @@ struct AppPresentationTests {
         #expect(presentation.menuBarState == .normal(current: 160, max: 200))
         #expect(presentation.title == "Daily Note Ready")
         #expect(presentation.message == "Current account: Traveler on os_asia")
+        #expect(presentation.icon == .asset("AppPresentationIcon"))
         #expect(presentation.panel?.hero.value == "160 / 200")
         #expect(presentation.panel?.hero.detail == "Full in 05:20")
         #expect(presentation.panel?.summaryMetrics.map(\.id) == [

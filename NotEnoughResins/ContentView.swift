@@ -18,10 +18,7 @@ struct ContentView: View {
         VStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 16) {
                 HStack(alignment: .top, spacing: 12) {
-                    Image(systemName: presentation.symbolName)
-                        .font(.system(size: 20, weight: .semibold))
-                        .symbolRenderingMode(.hierarchical)
-                        .foregroundStyle(accentColor)
+                    statusIconView(for: presentation.icon)
 
                     VStack(alignment: .leading, spacing: 4) {
                         Text(presentation.title)
@@ -113,6 +110,23 @@ struct ContentView: View {
 
     private func presentSettings() {
         openSettings()
+    }
+
+    @ViewBuilder
+    private func statusIconView(for icon: AppPresentation.Icon) -> some View {
+        switch icon {
+        case let .system(name):
+            Image(systemName: name)
+                .font(.system(size: 20, weight: .semibold))
+                .symbolRenderingMode(.hierarchical)
+                .foregroundStyle(accentColor)
+        case let .asset(name):
+            Image(name)
+                .renderingMode(.original)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 48, height: 48)
+        }
     }
 
     private func panelView(_ panel: AppPresentation.Panel) -> some View {

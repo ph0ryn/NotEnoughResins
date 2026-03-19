@@ -1,6 +1,11 @@
 import Foundation
 
 struct AppPresentation: Equatable {
+    enum Icon: Equatable {
+        case system(String)
+        case asset(String)
+    }
+
     enum MenuBarState: Equatable {
         case needsConfiguration
         case loading
@@ -51,7 +56,7 @@ struct AppPresentation: Equatable {
     let menuBarState: MenuBarState
     let title: String
     let message: String
-    let symbolName: String
+    let icon: Icon
     let lastRefreshText: String?
     let panel: Panel?
 }
@@ -85,7 +90,7 @@ struct AppPresentationBuilder {
                 menuBarState: .needsConfiguration,
                 title: "Configuration Needed",
                 message: "Save a HoYoLAB cookie in Preferences before account discovery can start.",
-                symbolName: "exclamationmark.triangle.fill",
+                icon: .system("exclamationmark.triangle.fill"),
                 lastRefreshText: lastRefreshText,
                 panel: panel
             )
@@ -100,7 +105,7 @@ struct AppPresentationBuilder {
                         menuBarState: menuBarState,
                         title: "Configuration Ready",
                         message: "A HoYoLAB cookie is stored and the latest Daily Note snapshot is ready.",
-                        symbolName: symbolName(for: menuBarState),
+                        icon: icon(for: menuBarState),
                         lastRefreshText: lastRefreshText,
                         panel: panel
                     )
@@ -110,7 +115,7 @@ struct AppPresentationBuilder {
                     menuBarState: .loading,
                     title: "Configuration Ready",
                     message: "A HoYoLAB cookie is stored and ready for the first refresh.",
-                    symbolName: "gearshape.2.fill",
+                    icon: .system("gearshape.2.fill"),
                     lastRefreshText: lastRefreshText,
                     panel: panel
                 )
@@ -120,7 +125,7 @@ struct AppPresentationBuilder {
                     menuBarState: .loading,
                     title: "Resolving Account",
                     message: "Resolving the configured Genshin account before Daily Note polling starts.",
-                    symbolName: "person.crop.circle.badge.clock",
+                    icon: .system("person.crop.circle.badge.clock"),
                     lastRefreshText: lastRefreshText,
                     panel: panel
                 )
@@ -132,7 +137,7 @@ struct AppPresentationBuilder {
                     message: latestSnapshot == nil
                         ? "Fetching the first Daily Note snapshot."
                         : "Refreshing the latest Daily Note snapshot while keeping the last known data visible.",
-                    symbolName: "arrow.triangle.2.circlepath.circle.fill",
+                    icon: .system("arrow.triangle.2.circlepath.circle.fill"),
                     lastRefreshText: lastRefreshText,
                     panel: panel
                 )
@@ -143,7 +148,7 @@ struct AppPresentationBuilder {
                         menuBarState: .loading,
                         title: "Loading Daily Note",
                         message: "Waiting for the first Daily Note snapshot.",
-                        symbolName: "arrow.triangle.2.circlepath.circle.fill",
+                        icon: .system("arrow.triangle.2.circlepath.circle.fill"),
                         lastRefreshText: lastRefreshText,
                         panel: panel
                     )
@@ -155,7 +160,7 @@ struct AppPresentationBuilder {
                     menuBarState: menuBarState,
                     title: title(for: menuBarState),
                     message: readyMessage(resolvedAccount: resolvedAccount),
-                    symbolName: symbolName(for: menuBarState),
+                    icon: icon(for: menuBarState),
                     lastRefreshText: lastRefreshText,
                     panel: panel
                 )
@@ -165,7 +170,7 @@ struct AppPresentationBuilder {
                     menuBarState: .authError,
                     title: "Authentication Failed",
                     message: message,
-                    symbolName: "person.crop.circle.badge.exclamationmark.fill",
+                    icon: .system("person.crop.circle.badge.exclamationmark.fill"),
                     lastRefreshText: lastRefreshText,
                     panel: panel
                 )
@@ -175,7 +180,7 @@ struct AppPresentationBuilder {
                     menuBarState: .requestError,
                     title: "Request Failed",
                     message: message,
-                    symbolName: "wifi.exclamationmark",
+                    icon: .system("wifi.exclamationmark"),
                     lastRefreshText: lastRefreshText,
                     panel: panel
                 )
@@ -290,20 +295,20 @@ struct AppPresentationBuilder {
         }
     }
 
-    private nonisolated func symbolName(for menuBarState: AppPresentation.MenuBarState) -> String {
+    private nonisolated func icon(for menuBarState: AppPresentation.MenuBarState) -> AppPresentation.Icon {
         switch menuBarState {
         case .needsConfiguration:
-            "exclamationmark.triangle.fill"
+            .system("exclamationmark.triangle.fill")
         case .loading:
-            "arrow.triangle.2.circlepath.circle.fill"
+            .system("arrow.triangle.2.circlepath.circle.fill")
         case .normal:
-            "drop.fill"
+            .asset("AppPresentationIcon")
         case .overflow:
-            "trash.fill"
+            .system("trash.fill")
         case .authError:
-            "person.crop.circle.badge.exclamationmark.fill"
+            .system("person.crop.circle.badge.exclamationmark.fill")
         case .requestError:
-            "wifi.exclamationmark"
+            .system("wifi.exclamationmark")
         }
     }
 
