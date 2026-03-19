@@ -30,13 +30,6 @@ struct PreferencesView: View {
                 }
 
                 HStack {
-                    Button("Reload Saved Cookie") {
-                        store.reloadFromStorage()
-                        cookieDraft = store.storedCookie
-                        feedbackMessage = nil
-                    }
-                    .accessibilityIdentifier("preferences.reloadButton")
-
                     Spacer()
 
                     Button("Save Cookie") {
