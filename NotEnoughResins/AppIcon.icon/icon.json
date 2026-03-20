@@ -1,7 +1,7 @@
 {
   "fill" : {
     "linear-gradient" : [
-      "display-p3:0.21045,0.66522,1.00000,1.00000",
+      "display-p3:0.78703,0.93046,1.00000,1.00000",
       "srgb:1.00000,1.00000,1.00000,1.00000"
     ]
   },
@@ -9,30 +9,14 @@
     {
       "layers" : [
         {
-          "blend-mode-specializations" : [
-            {
-              "value" : "normal"
-            },
-            {
-              "appearance" : "tinted",
-              "value" : "normal"
-            }
-          ],
-          "fill-specializations" : [
-            {
-              "value" : "none"
-            },
-            {
-              "appearance" : "tinted",
-              "value" : {
-                "automatic-gradient" : "extended-srgb:0.00000,0.53333,1.00000,1.00000"
-              }
-            }
-          ],
-          "glass" : false,
+          "blend-mode" : "normal",
+          "fill" : {
+            "solid" : "srgb:0.32507,0.71891,1.00000,1.00000"
+          },
+          "glass" : true,
           "hidden" : false,
-          "image-name" : "icon.png",
-          "name" : "icon",
+          "image-name" : "AppIcon.png",
+          "name" : "AppIcon",
           "position" : {
             "scale" : 1,
             "translation-in-points" : [
