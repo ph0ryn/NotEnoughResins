@@ -25,3 +25,7 @@
 ## Note
 
 This app is inspired by [PaimonMenuBar](https://github.com/spencerwooo/PaimonMenuBar)
+
+## License
+
+MIT License
