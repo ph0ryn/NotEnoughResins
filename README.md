@@ -20,7 +20,10 @@
 
 ## Screenshot
 
-![menubar](Assets/Menubar.png)
+<p align="center">
+  <img src="Assets/Menubar.png" alt="menubar" height="500" />
+  <img src="Assets/Menubar2.png" alt="menubar2" height="500" />
+</p>
 
 ## Note
 
